@@ -1,54 +1,58 @@
+// የ Render Backend API ሊንክሽ
 const API_URL = "https://tigist-quotes-app.onrender.com/api/quotes";
 
-let quotesArray = [];
+let quotes = [];
 let currentIndex = 0;
 
-const amTextElement = document.getElementById("am-text");
-const enTextElement = document.getElementById("en-text");
-const authorElement = document.getElementById("author");
+const amTextEl = document.getElementById("am-text");
+const enTextEl = document.getElementById("en-text");
+const authorEl = document.getElementById("author");
 const nextBtn = document.getElementById("next-btn");
 const prevBtn = document.getElementById("prev-btn");
 
-async function fetchQuotes() {
+// ጥቅሶቹን ከሰርቨር ማምጣት
+async function loadQuotes() {
     try {
         const response = await fetch(API_URL);
         const result = await response.json();
         
         if (result.success && result.data.length > 0) {
-            quotesArray = result.data;
-            displayQuote(currentIndex);
+            quotes = result.data;
+            showQuote(currentIndex);
         }
     } catch (error) {
-        console.error("Error fetching quotes:", error);
-        amTextElement.textContent = "መረጃውን ማምጣት አልተቻለም።";
+        console.error("Error loading quotes:", error);
+        amTextEl.textContent = "መረጃውን ማምጣት አልተቻለም።";
     }
 }
 
-function displayQuote(index) {
-    if (quotesArray.length === 0) return;
+// ጥቅሱን በስክሪኑ ላይ ማሳያ
+function showQuote(index) {
+    if (quotes.length === 0) return;
     
-    const currentQuote = quotesArray[index];
-    amTextElement.textContent = currentQuote.amText;
-    enTextElement.textContent = currentQuote.enText;
-    authorElement.textContent = "- " + currentQuote.author;
+    const current = quotes[index];
+    amTextEl.textContent = current.amText;
+    enTextEl.textContent = current.enText;
+    authorEl.textContent = "- " + current.author;
 }
 
-// Next button
+// የ "ቀጣይ" (Next) ቁልፍ ሲጫን
 nextBtn.addEventListener("click", () => {
     currentIndex++;
-    if (currentIndex >= quotesArray.length) {
-        currentIndex = 0;
+    if (currentIndex >= quotes.length) {
+        currentIndex = 0; // ወደ መጀመሪያው ይመለሳል
     }
-    displayQuote(currentIndex);
+    showQuote(currentIndex);
 });
 
-// Previous button
+// የ "ያለፈው" (Previous) ቁልፍ ሲጫን
 prevBtn.addEventListener("click", () => {
     currentIndex--;
     if (currentIndex < 0) {
-        currentIndex = quotesArray.length - 1;
+        currentIndex = quotes.length - 1; // ወደ መጨረሻው ይሄዳል
     }
-    displayQuote(currentIndex);
+    showQuote(currentIndex);
 });
 
-fetchQuotes();
+// መተግበሪያው ሲከፈት
+loadQuotes();
