@@ -25,7 +25,7 @@ let quotesData = [
     { id: 14, amText: "እውቀት ከሀብት ይበልጣል።", enText: "Knowledge is better than wealth.", author: "ጥንታዊ ጥበብ" },
     { id: 15, amText: "በጎ ማድረግ በራሱ ትልቅ ዋጋ አለው።", enText: "Doing good has a great value in itself.", author: "ፍልስፍና" },
     { id: 16, amText: "ዛሬን በንቃት መኖር ለነገ ደህንነት ዋስትና ነው።", enText: "Living today consciously is a guarantee for tomorrow's well-being.", author: "ዘመናዊ አስተሳሰብ" },
-    { id: 17, amText: "ታማኝነት ትልቁ የሞባይል ካፒታል ነው።", enText: "Honesty is the greatest capital.", author: "עסקים" },
+    { id: 17, amText: "ታማኝነት ትልቁ የሞባይል ካፒታል ነው።", enText: "Honesty is the greatest capital.", author: "ንግድ" },
     { id: 18, amText: "ፍቅር እና ሰላም ዓለምን ይገዛሉ።", enText: "Love and peace rule the world.", author: "ዓለም አቀፍ እውነት" },
     { id: 19, amText: "አስተዋይ ሰው ከሌሎች ስህተት ይማራል።", enText: "A wise person learns from the mistakes of others.", author: "ምሁር" },
     { id: 20, amText: "ጠንክሮ መስራት ፍሬውን በጊዜው ያመጣል።", enText: "Hard work brings its fruit in due time.", author: "ተሞክሮ" },
@@ -81,13 +81,13 @@ let quotesData = [
     { id: 70, amText: "ጥሩ ማዳመጥ ከንግግር በላይ ጥበብ ነው።", enText: "Good listening is greater wisdom than speaking.", author: "ጥበብ" },
     { id: 71, amText: "ጠንካራ መሰረት ያለው ህንጻ ንፋስ አይፈራም።", enText: "A building with a strong foundation fears no wind.", author: "ምሳሌ" },
     { id: 72, amText: "ትሁት ሰው በሁሉ ዘንድ ይወደዳል።", enText: "A humble person is loved by all.", author: "ህብረተሰብ" },
-    { id: 73, amText: "ጊዜ ከንቱ ሆኖ እንዲያልፍ አትፍቀድ።", enText: "Do not let time pass in vain.", author: "ምክር" },
+    { id: 73, amText: "ጊዜን ከንቱ ሆኖ እንዲያልፍ አትፍቀድ።", enText: "Do not let time pass in vain.", author: "ምክር" },
     { id: 74, amText: "የማይሰሩት ስህተት የለም፣ ከስህተት የሚማር ግን ጥበበኛ ነው።", enText: "Everyone makes mistakes, but a wise person learns from them.", author: "ፍልስፍና" },
     { id: 75, amText: "ነጻነት ከሀብት ሁሉ በላይ ዋጋ አለው።", enText: "Freedom is more valuable than any wealth.", author: "ታሪክ" },
     { id: 76, amText: "ትክክለኛ ውሳኔ የነገን ህይወት ያቀልላል።", enText: "A right decision eases tomorrow's life.", author: "ዕቅድ" },
     { id: 77, amText: "አርቆ አሳቢነት የነገን አደጋ ይቀንሳል።", enText: "Foresight reduces tomorrow's danger.", author: "ጥበብ" },
     { id: 78, amText: "መልካም ተግባር መቼም ቢሆን ከሰዎች አይጠፋም።", enText: "Good deeds are never lost from people.", author: "ባህል" },
-    { id: 79, amText: "ቁጠባ የነገ ዋስትና ነው።", enText: "Saving is tomorrow's guarantee.", author: "οικονομία" },
+    { id: 79, amText: "ቁጠባ የነገ ዋስትና ነው።", enText: "Saving is tomorrow's guarantee.", author: "ኢኮኖሚ" },
     { id: 80, amText: "እውቀት የሰውን ልጅ አዕምሮ ነጻ ያወጣል።", enText: "Knowledge frees the human mind.", author: "ትምህርት" },
     { id: 81, amText: "ትብብር ተራሮችን ያንቀሳቅሳል።", enText: "Cooperation moves mountains.", author: "ምሳሌ" },
     { id: 82, amText: "ትዕግስት የችግሮች ሁሉ መፍትሄ ናት።", enText: "Patience is the solution to all problems.", author: "ባህላዊ አባባል" },
@@ -211,7 +211,6 @@ let quotesData = [
     { id: 200, amText: "የህይወት ጉዞ በትክክለኛ አቅጣጫ ይቀጥል።", enText: "The journey of life continues in the right direction.", author: "ህይወት" }
 ];
 
-// GET: Retrieve all quotes
 app.get('/api/quotes', (req, res) => {
     res.json({
         success: true,
@@ -220,33 +219,6 @@ app.get('/api/quotes', (req, res) => {
     });
 });
 
-// POST: Add a new quote
-app.post('/api/quotes', (req, res) => {
-    const { amText, enText, author } = req.body;
-
-    if (!amText || !author) {
-        return res.status(400).json({
-            success: false,
-            message: "እባክዎ ጥቅሱን እና ደራሲውን ሙሉ በሙሉ ይሙሉ"
-        });
-    }
-
-    const newQuote = {
-        id: quotesData.length + 1,
-        amText: amText,
-        enText: enText || "User added quote",
-        author: author
-    };
-
-    quotesData.push(newQuote);
-
-    res.status(201).json({
-        success: true,
-        data: newQuote
-    });
-});
-
-// Root route handler
 app.get('/', (req, res) => {
     res.json({
         success: true,
@@ -254,9 +226,7 @@ app.get('/', (req, res) => {
     });
 });
 
-// Server Port Configuration (Render Compatible)
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

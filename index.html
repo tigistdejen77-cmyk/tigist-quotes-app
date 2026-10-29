@@ -3,61 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Quotes Application</title>
+    <title>Tigist Quotes App</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <div class="app-container">
-        
-        <!-- ተጠቃሚ መረጃ ማስገቢያ (User Profile Setup) -->
-        <section class="user-config-section" id="user-config-section">
-            <div class="config-group">
-                <input type="text" id="user-name-input" placeholder="ስም ያስገቡ (e.g. ትግስት)" value="ትግስት">
-                <select id="user-gender-select">
-                    <option value="female" selected>ሴት (Female)</option>
-                    <option value="male">ወንድ (Male)</option>
-                </select>
-                <button id="save-config-btn" class="btn btn-config">አድስ</button>
-            </div>
-        </section>
-
-        <!-- አናት እና ሰላምታ (Header & Dynamic Greeting) -->
-        <header class="app-header">
-            <div class="status-stickers"><b> how are you</b> </div>
-            <h2 id="dynamic-greeting" class="greeting-heading">--</h2>
-            <h1 class="main-title">የዕለት ተዕለት አነቃቂ ጥቅሶች</h1>
-            <p class="app-subtitle">Daily Inspiration & Thoughtful Quotes</p>
-        </header>
-
-        <!-- ጥቅስ ማሳያ ሳጥን (Quote Display Card) -->
-        <main class="quote-display-card">
-            <span class="quote-mark">❝</span>
-            <p id="quote-text" class="quote-content">ጥቅሱ እዚህ ይጫናል...</p>
-            <span id="quote-author" class="quote-author-name">- ባለቤቱ</span>
-        </main>
-
-        <!-- የተግባር አዝራሮች (Action Control Buttons) -->
-        <div class="control-actions-group">
-            <button id="next-quote-btn" class="btn btn-primary">ቀጣይ ጥቅስ </button>
-            <button id="copy-quote-btn" class="btn btn-secondary">ጥቅሱን ቅዳ (Copy) </button>
+    <div class="quote-container">
+        <h2>ጥቅሶች / Quotes</h2>
+        <div class="quote-card">
+            <p id="am-text" class="amharic-text">እየጫነ ነው...</p>
+            <p id="en-text" class="english-text">Loading...</p>
+            <h4 id="author" class="author"></h4>
         </div>
-
-        <!-- አዲስ ጥቅስ መመዝገቢያ (New Quote Registration Form) -->
-        <section class="add-quote-container">
-            <h3 class="section-title">አዲስ ጥቅስ መመዝገቢያ</h3>
-            <div class="form-inputs">
-                <input type="text" id="input-quote-text" placeholder="የጥቅሱ ይዘት..." autocomplete="off">
-                <input type="text" id="input-quote-author" placeholder="የፀሐፊው ስም..." autocomplete="off">
-                <button id="submit-quote-btn" class="btn btn-add">ጥቅስ መዝግብ </button>
-            </div>
-        </section>
-
-        <footer class="app-footer">
-            <p>Daily Quotes App by Tigist Dejen</p>
-        </footer>
-
+        
+        <!-- ሁለቱም ቁልፎች (Previous እና Next) -->
+        <div class="buttons-container">
+            <button id="prev-btn">ያለፈው (Previous)</button>
+            <button id="next-btn">ቀጣይ (Next)</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
