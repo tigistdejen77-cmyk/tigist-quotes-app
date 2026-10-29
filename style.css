@@ -1,0 +1,218 @@
+/* 1. Global Reset & Fonts Setup */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', 'Noto Sans Ethiopic', sans-serif;
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #2d3436;
+    padding: 20px;
+}
+
+/* 2. Main App Layout */
+.app-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* 3. Profile Setup Bar */
+.user-config-section {
+    background: #f0fff4;
+    padding: 10px 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #c6f6d5;
+}
+
+.config-group {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.config-group input, 
+.config-group select {
+    padding: 7px 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+/* 4. Header Styles */
+.status-stickers {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+}
+
+.greeting-heading {
+    font-size: 1.1rem;
+    color: #319795;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.main-title {
+    font-size: 1.7rem;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.app-subtitle {
+    font-size: 0.85rem;
+    color: #718093;
+    margin-bottom: 25px;
+}
+
+/* 5. Quote Card Area */
+.quote-display-card {
+    background: #f0fff4;
+    border-left: 6px solid #319795;
+    padding: 28px;
+    border-radius: 14px;
+    margin-bottom: 25px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(49, 151, 149, 0.08);
+    text-align: left;
+}
+
+.quote-mark {
+    font-size: 2.8rem;
+    color: #319795;
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    opacity: 0.2;
+}
+
+.quote-content {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: #2d3748;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.quote-author-name {
+    font-size: 0.95rem;
+    color: #319795;
+    font-weight: 600;
+    display: block;
+    text-align: right;
+}
+
+/* 6. Glowing Buttons Setup */
+.control-actions-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.btn {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #319795 0%, #38b2ac 100%);
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(49, 151, 149, 0.4);
+    animation: pulseGlow 2.5s infinite alternate;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(56, 178, 172, 0.8);
+}
+
+.btn-secondary {
+    background: #edf2f7;
+    color: #4a5568;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+    box-shadow: 0 0 15px rgba(160, 174, 192, 0.5);
+}
+
+.btn-add {
+    background: linear-gradient(135deg, #38a169 0%, #48bb78 100%);
+    color: #ffffff;
+    width: 100%;
+    box-shadow: 0 0 12px rgba(56, 161, 105, 0.35);
+}
+
+.btn-add:hover {
+    box-shadow: 0 0 20px rgba(72, 187, 120, 0.7);
+}
+
+.btn-config {
+    background: #319795;
+    color: white;
+    padding: 7px 15px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px rgba(49, 151, 149, 0.4); }
+    100% { box-shadow: 0 0 20px rgba(56, 178, 172, 0.75); }
+}
+
+/* 7. Input Form Area */
+.add-quote-container {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+    text-align: left;
+}
+
+.section-title {
+    font-size: 0.95rem;
+    color: #4a5568;
+    margin-bottom: 12px;
+}
+
+.form-inputs input {
+    width: 100%;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    background: #f7fafc;
+}
+
+.form-inputs input:focus {
+    border-color: #319795;
+    box-shadow: 0 0 8px rgba(49, 151, 149, 0.25);
+}
+
+.app-footer {
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: #a0aec0;
+}
