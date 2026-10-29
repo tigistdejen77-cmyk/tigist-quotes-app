@@ -1,3 +1,4 @@
+// 1. DOM Elements Selection
 const quoteTextEl = document.getElementById("quote-text");
 const quoteAuthorEl = document.getElementById("quote-author");
 const nextQuoteBtn = document.getElementById("next-quote-btn");
@@ -12,6 +13,7 @@ const userNameInput = document.getElementById("user-name-input");
 const userGenderSelect = document.getElementById("user-gender-select");
 const saveConfigBtn = document.getElementById("save-config-btn");
 
+// User Context State
 let currentUserState = {
     name: "ትግስት",
     gender: "female"
@@ -19,6 +21,7 @@ let currentUserState = {
 
 let viewedQuoteIds = [];
 
+// 2. Dynamic Humanized Greeting Logic
 function renderHumanizedGreeting() {
     const dateNow = new Date();
     const currentHour = dateNow.getHours();
@@ -39,10 +42,10 @@ function renderHumanizedGreeting() {
         timePhrase = isFemale ? "ሰላማዊ ምሽት ይሁንልሽ" : "ሰላማዊ ምሽት ይሁንልህ";
     }
 
-    dynamicGreetingEl.textContent = `${timePhrase} ${currentUserState.name}!  ዛሬ ${dayName} ነው `;
+    dynamicGreetingEl.textContent = `${timePhrase} ${currentUserState.name}! ዛሬ ${dayName} ነው`;
 }
 
-// ዩአይ ላይ መጀመሪያ አማርኛ ከዛ እንግሊዝኛ ማሳየት
+// 3. Fetch Random Quote from Backend
 async function fetchRandomQuote() {
     try {
         const response = await fetch('http://localhost:5000/api/quotes');
@@ -63,10 +66,9 @@ async function fetchRandomQuote() {
 
                 viewedQuoteIds.push(selectedQuote.id);
 
-                // እዚህ ጋር HTML አወቃቀሩን በመጠቀም: መጀመሪያ አማርኛ (amText) ከዛ እንግሊዝኛ (enText) እናሳያለን
                 quoteTextEl.innerHTML = `
                     <div style="font-size: 1.15rem; font-weight: 500; margin-bottom: 8px; color: #2d3748;">${selectedQuote.amText}</div>
-                    <div style="font-size: 0.95rem; color: #4a5568; font-style: italic; border-top: 1px dashed #cbd5e0; pt: 6px; padding-top: 6px;">${selectedQuote.enText}</div>
+                    <div style="font-size: 0.95rem; color: #4a5568; font-style: italic; border-top: 1px dashed #cbd5e0; padding-top: 6px;">${selectedQuote.enText}</div>
                 `;
                 quoteAuthorEl.textContent = `- ${selectedQuote.author}`;
             }
@@ -78,23 +80,25 @@ async function fetchRandomQuote() {
     }
 }
 
+// 4. Copy Quote Logic
 function copyQuoteToClipboard() {
     const textToCopy = `${quoteTextEl.innerText} ${quoteAuthorEl.textContent}`;
     navigator.clipboard.writeText(textToCopy).then(() => {
-        copyQuoteBtn.textContent = "ተቀድቷል! ";
+        copyQuoteBtn.textContent = "ተቀድቷል!";
         setTimeout(() => {
-            copyQuoteBtn.textContent = "ጥቅሱን ቅዳ (Copy) ";
+            copyQuoteBtn.textContent = "ጥቅሱን ቅዳ (Copy)";
         }, 2000);
     });
 }
 
+// 5. Add New Quote to Backend
 async function addNewQuoteToBackend() {
     const textVal = inputQuoteText.value.trim();
     const authorVal = inputQuoteAuthor.value.trim();
     const isFemale = currentUserState.gender === "female";
 
     if (!textVal || !authorVal) {
-        const warningMsg = isFemale ? "እባክዎ ሁለቱንም ሳጥኖች ይሙሉ! " : "እባክዎ ሁለቱንም ሳጥኖች ይሙሉ! ";
+        const warningMsg = isFemale ? "እባክዎ ሁለቱንም ሳጥኖች ይሙሉ!" : "እባክዎ ሁለቱንም ሳጥኖች ይሙሉ!";
         alert(warningMsg);
         return;
     }
@@ -118,7 +122,7 @@ async function addNewQuoteToBackend() {
             inputQuoteText.value = "";
             inputQuoteAuthor.value = "";
 
-            const successMsg = isFemale ? "አዲሱ ጥቅስ በሰርቨሩ ላይ ተመዝግቧል! " : "አዲሱ ጥቅስ በሰርቨሩ ላይ ተመዝግቧል! ";
+            const successMsg = isFemale ? "አዲሱ ጥቅስ በሰርቨሩ ላይ ተመዝግቧል!" : "አዲሱ ጥቅስ በሰርቨሩ ላይ ተመዝግቧል!";
             alert(successMsg);
         }
     } catch (error) {
@@ -127,6 +131,7 @@ async function addNewQuoteToBackend() {
     }
 }
 
+// 6. Event Listeners
 nextQuoteBtn.addEventListener("click", fetchRandomQuote);
 copyQuoteBtn.addEventListener("click", copyQuoteToClipboard);
 submitQuoteBtn.addEventListener("click", addNewQuoteToBackend);
@@ -140,6 +145,7 @@ saveConfigBtn.addEventListener("click", () => {
     }
 });
 
+// 7. Application Initialization
 window.addEventListener("DOMContentLoaded", () => {
     renderHumanizedGreeting();
     fetchRandomQuote();
