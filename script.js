@@ -45,10 +45,10 @@ function renderHumanizedGreeting() {
     dynamicGreetingEl.textContent = `${timePhrase} ${currentUserState.name}! ዛሬ ${dayName} ነው`;
 }
 
-// 3. Fetch Random Quote from Backend
+// 3. Fetch Random Quote from Render Backend
 async function fetchRandomQuote() {
     try {
-        const response = await fetch('http://localhost:5000/api/quotes');
+        const response = await fetch('https://tigist-quotes-app.onrender.com/api/quotes');
         const result = await response.json();
         
         if (result.success) {
@@ -91,7 +91,7 @@ function copyQuoteToClipboard() {
     });
 }
 
-// 5. Add New Quote to Backend
+// 5. Add New Quote to Render Backend
 async function addNewQuoteToBackend() {
     const textVal = inputQuoteText.value.trim();
     const authorVal = inputQuoteAuthor.value.trim();
@@ -104,7 +104,7 @@ async function addNewQuoteToBackend() {
     }
 
     try {
-        const response = await fetch('http://localhost:5000/api/quotes', {
+        const response = await fetch('https://tigist-quotes-app.onrender.com/api/quotes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ amText: textVal, enText: "User added quote", author: authorVal })
