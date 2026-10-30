@@ -4,304 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lightly - Mood & Quotes App</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f0fdf4;
-            color: #166534;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 15px;
-        }
-
-        .container {
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(22, 101, 52, 0.15);
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-            border: 1px solid #dcfce7;
-        }
-
-        .header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        h1 {
-            font-size: 24px;
-            color: #15803d;
-            font-weight: 700;
-        }
-
-        .lang-btn {
-            background-color: #dcfce7;
-            color: #15803d;
-            border: 1px solid #bbf7d0;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .lang-btn:hover {
-            background-color: #bbf7d0;
-        }
-
-        .subtitle {
-            font-size: 12px;
-            color: #65a30d;
-            margin-bottom: 15px;
-        }
-
-        /* አግድም (Horizontal) የምድብ ስትሪፕ */
-        .categories-strip {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-            scrollbar-width: none;
-        }
-
-        .categories-strip::-webkit-scrollbar {
-            display: none;
-        }
-
-        .cat-btn {
-            background-color: #f0fdf4;
-            color: #15803d;
-            border: 1px solid #bbf7d0;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-
-        .cat-btn.active {
-            background-color: #22c55e;
-            color: #ffffff;
-            border-color: #22c55e;
-        }
-
-        .quote-box {
-            background: #f7fee7;
-            padding: 30px 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            border: 1px solid #bbf7d0;
-            min-height: 160px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .quote-content {
-            font-size: 17px;
-            font-weight: 600;
-            color: #14532d;
-            margin-bottom: 12px;
-            line-height: 1.6;
-            width: 100%;
-        }
-
-        .author-name {
-            display: block;
-            font-size: 12px;
-            color: #16a34a;
-            font-weight: 500;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-        }
-
-        button.action-btn {
-            flex: 1;
-            background-color: #22c55e;
-            color: #ffffff;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
-        }
-
-        button.action-btn:hover {
-            background-color: #16a34a;
-            transform: translateY(-2px);
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <div class="header-bar">
-            <h1>Lightly</h1>
-            <button id="lang-btn" class="lang-btn" onclick="toggleLanguage()">🇺🇸 English</button>
+        <div>
+            <div class="header-bar">
+                <h1 id="app-title">Lightly</h1>
+                <button id="lang-btn" class="lang-btn">🇺🇸 English</button>
+            </div>
+            <p id="app-subtitle" class="subtitle">ለዕለታዊ ስሜታዊ ጉዞዎ የሚሆን የጥቅስ መተግበሪያ።</p>
         </div>
-        <p id="app-subtitle" class="subtitle">ለዕለታዊ ስሜታዊ ጉዞዎ የሚሆን የጥቅስ መተግበሪያ።</p>
 
         <!-- አግድም የምድብ አዝራሮች -->
         <div class="categories-strip" id="cat-strip"></div>
 
         <div class="quote-box">
-            <p id="quote-text" class="quote-content"></p>
+            <p id="quote-text" class="quote-content">እየጫነ ነው...</p>
             <span id="quote-author" class="author-name"></span>
         </div>
 
         <div class="button-group">
-            <button id="prev-btn" class="action-btn" onclick="prevQuote()">ያለፈው</button>
-            <button id="next-btn" class="action-btn" onclick="nextQuote()">ቀጣይ</button>
+            <button id="prev-btn" class="action-btn">ያለፈው</button>
+            <button id="next-btn" class="action-btn">ቀጣይ</button>
         </div>
     </div>
 
-    <script>
-        // የተሟላ የዳታቤዝ መዋቅር (በሁለቱም ቋንቋዎች ሙሉ በሙሉ የተለዩ)
-        const database = {
-            love: {
-                amName: "❤️ ፍቅር", enName: "❤️ Love",
-                quotes: [
-                    { amText: "ፍቅር እና ሰላም ዓለምን ይገዛሉ።", enText: "Love and peace rule the world.", amAuthor: "ዓለም አቀፍ እውነት", enAuthor: "Universal Truth" },
-                    { amText: "መልካም ቃላት እንደ ማር ጣፋጭ ናቸው።", enText: "Kind words are as sweet as honey.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
-                    { amText: "ፍቅር ማንም ሊያሸንፈው የማይችል ኃይል አለው።", enText: "Love has a power that no one can defeat.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
-                    { amText: "መልካም ቃል የልብ መድኃኒት ነው።", enText: "A kind word is the medicine of the heart.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
-                    { amText: "ንጹህ ፍቅር የዘላለም ህይወት ማደሪያ ነው።", enText: "Pure love is the dwelling place of eternal life.", amAuthor: "የፍቅር ጥበብ", enAuthor: "Love Wisdom" }
-                ]
-            },
-            friendship: {
-                amName: "🤝 ጓደኝነት", enName: "🤝 Friendship",
-                quotes: [
-                    { amText: "እውነተኛ ጓደኛ በቸርነት ጊዜ ይታወቃል።", enText: "A true friend is known in times of need.", amAuthor: "ማህበረሰብ", enAuthor: "Community" },
-                    { amText: "ጥሩ ጓደኛ የህይወት አጋር እና መጽናኛ ነው።", enText: "A good friend is a life partner and comfort.", amAuthor: "ማህበር", enAuthor: "Society" },
-                    { amText: "ከክፉ ጓደኛ ይልቅ ለውጥን የሚያሳይ ሩቅ ወዳጅ ይሻላል።", enText: "A distant friend who shows change is better than a bad companion.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
-                    { amText: "ጓደኝነት በመተማመን ላይ የተገነባ ግንብ ነው።", enText: "Friendship is a tower built on trust.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" }
-                ]
-            },
-            work: {
-                amName: "💼 ስራ", enName: "💼 Work",
-                quotes: [
-                    { amText: "ዛሬ የሰራኸው ስራ የነገው ስኬትህ መሠረት ነው።", enText: "The work you do today is the foundation of your success tomorrow.", amAuthor: "ዘመናዊ ፍልስፍና", enAuthor: "Modern Philosophy" },
-                    { amText: "ትጋት የሌለው ተስፋ ፍሬ አይሰጥም።", enText: "Hope without diligence bears no fruit.", amAuthor: "ምሳሌያዊ አነጋገር", enAuthor: "Idiom" },
-                    { amText: "ጠንክሮ መስራት ፍሬውን በጊዜው ያመጣል።", enText: "Hard work brings its fruit in due time.", amAuthor: "ተሞክሮ", enAuthor: "Experience" }
-                ]
-            },
-            knowledge: {
-                amName: "📚 ዕውቀት", enName: "📚 Knowledge",
-                quotes: [
-                    { amText: "ዕውቀት የሰው ልጅ የብርሃን መብራት ነው።", enText: "Knowledge is the light of mankind.", amAuthor: "ትምህርት", enAuthor: "Education" },
-                    { amText: "መማር ማቆም ማለት ማደግ ማቆም ነው።", enText: "To stop learning is to stop growing.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
-                    { amText: "ንባብ አእምሮን ያሰፋል።", enText: "Reading broadens the mind.", amAuthor: "ጥበብ", enAuthor: "Wisdom" }
-                ]
-            },
-            country: {
-                amName: "🇪🇹 ሀገር", enName: "🇪🇹 Country",
-                quotes: [
-                    { amText: "ሀገር የባለቤቷ ማረፊያ ናት፤ ከሀገር ውጪ ሰላም የለም።", enText: "A country is the sanctuary of its owner; there is no peace away from home.", amAuthor: "የሀገር አባባል", enAuthor: "Country Proverb" },
-                    { amText: "ለሀገር መቆም የክብር ሁሉ ከፍታ ነው።", enText: "Standing for one's country is the height of honor.", amAuthor: "ሀገራዊ ፍልስፍና", enAuthor: "National Philosophy" }
-                ]
-            },
-            motivation: {
-                amName: "🌱 ተነሳሽነት", enName: "🌱 Motivation",
-                quotes: [
-                    { amText: "ትዕግስት የሁሉም ስኬት መሠረት ናት።", enText: "Patience is the foundation of all success.", amAuthor: "ጥንታዊ አባባል", enAuthor: "Ancient Saying" },
-                    { amText: "በራስ መተማመን ለስኬት የመጀመሪያው ጀማሪ ነው።", enText: "Self-confidence is the first step to success.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
-                    { amText: "ተስፋ አለመቁረጥ የድል መጀመሪያ ነው።", enText: "Never giving up is the beginning of victory.", amAuthor: "ጀግንነት", enAuthor: "Courage" }
-                ]
-            }
-        };
-
-        let currentLang = 'am'; // 'am' ወይም 'en'
-        let currentCat = 'love';
-        let currentIndex = 0;
-
-        function initApp() {
-            renderCategories();
-            updateUI();
-        }
-
-        function renderCategories() {
-            const strip = document.getElementById('cat-strip');
-            strip.innerHTML = '';
-            
-            Object.keys(database).forEach(catKey => {
-                const cat = database[catKey];
-                const btn = document.createElement('button');
-                btn.className = `cat-btn ${catKey === currentCat ? 'active' : ''}`;
-                btn.textContent = currentLang === 'am' ? cat.amName : cat.enName;
-                btn.onclick = () => {
-                    currentCat = catKey;
-                    currentIndex = 0;
-                    renderCategories();
-                    updateUI();
-                };
-                strip.appendChild(btn);
-            });
-        }
-
-        function updateUI() {
-            const catData = database[currentCat];
-            const quote = catData.quotes[currentIndex];
-
-            // ጽሁፎችን እና አዝራሮችን እንደ ቋንቋው በትክክል መሙላት
-            if (currentLang === 'am') {
-                document.getElementById('app-subtitle').textContent = "ለዕለታዊ ስሜታዊ ጉዞዎ የሚሆን የጥቅስ መተግበሪያ።";
-                document.getElementById('quote-text').textContent = quote.amText;
-                document.getElementById('quote-author').textContent = "- " + quote.amAuthor;
-                document.getElementById('prev-btn').textContent = "ያለፈው";
-                document.getElementById('next-btn').textContent = "ቀጣይ";
-                document.getElementById('lang-btn').textContent = "🇺🇸 English";
-            } else {
-                document.getElementById('app-subtitle').textContent = "A mood journal app for daily emotional journey.";
-                document.getElementById('quote-text').textContent = quote.enText;
-                document.getElementById('quote-author').textContent = "- " + quote.enAuthor;
-                document.getElementById('prev-btn').textContent = "Previous";
-                document.getElementById('next-btn').textContent = "Next";
-                document.getElementById('lang-btn').textContent = "🇪🇹 አማርኛ";
-            }
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'am' ? 'en' : 'am';
-            renderCategories();
-            updateUI();
-        }
-
-        function nextQuote() {
-            const quotes = database[currentCat].quotes;
-            currentIndex = (currentIndex + 1) % quotes.length;
-            updateUI();
-        }
-
-        function prevQuote() {
-            const quotes = database[currentCat].quotes;
-            currentIndex = (currentIndex - 1 + quotes.length) % quotes.length;
-            updateUI();
-        }
-
-        // አፑ ሲከፈት ማስጀመር
-        window.onload = initApp;
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

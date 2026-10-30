@@ -12,16 +12,22 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 15px;
+    padding: 20px;
 }
 
+/* ዋናው መያዣ ካርድ (ለሞባይል፣ ታብሌት እና ዴስክቶፕ ሬስፖንሲቭ የሆነ እና ቁመቱ 88% የተደረገ) */
 .container {
     background: #ffffff;
-    padding: 25px;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(22, 101, 52, 0.15);
+    padding: 30px;
+    border-radius: 28px;
+    box-shadow: 0 15px 35px rgba(22, 101, 52, 0.15);
     width: 100%;
-    max-width: 450px;
+    max-width: 520px; /* ለታብሌት እና ዴስክቶፕ ሰፋ ያለ ውብ ገጽታ */
+    height: 88vh;     /* ቁመቱ በትክክል 88% እንዲሆን ተደርጓል */
+    max-height: 700px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* ይዘቱን በቁመት በደንብ አከፋፍሎ ይይዛል */
     text-align: center;
     border: 1px solid #dcfce7;
 }
@@ -30,11 +36,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
 }
 
 h1 {
-    font-size: 24px;
+    font-size: 26px;
     color: #15803d;
     font-weight: 700;
 }
@@ -43,9 +48,9 @@ h1 {
     background-color: #dcfce7;
     color: #15803d;
     border: 1px solid #bbf7d0;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 12px;
+    padding: 7px 16px;
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -56,32 +61,31 @@ h1 {
 }
 
 .subtitle {
-    font-size: 12px;
+    font-size: 13px;
     color: #65a30d;
-    margin-bottom: 15px;
+    margin-top: 4px;
 }
 
-/* አግድም የምድብ ስትሪፕ */
+/* አግድም የምድብ ስትሪፕ (Horizontal Strip) */
 .categories-strip {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 15px;
-    scrollbar-width: none;
+    padding: 6px 2px;
+    scrollbar-width: none; /* ለፋየርፎክስ ስክሮል ባር መደበቂያ */
 }
 
 .categories-strip::-webkit-scrollbar {
-    display: none;
+    display: none; /* ለክሮም ስክሮል ባር መደበቂያ */
 }
 
 .cat-btn {
     background-color: #f0fdf4;
     color: #15803d;
     border: 1px solid #bbf7d0;
-    padding: 6px 14px;
+    padding: 8px 16px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
@@ -92,40 +96,42 @@ h1 {
     background-color: #22c55e;
     color: #ffffff;
     border-color: #22c55e;
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
 }
 
+/* የጥቅስ ማሳያ ሳጥን */
 .quote-box {
     background: #f7fee7;
     padding: 30px 20px;
-    border-radius: 16px;
-    margin-bottom: 20px;
+    border-radius: 20px;
     border: 1px solid #bbf7d0;
-    min-height: 160px;
+    flex-grow: 1; /* በካርዱ ውስጥ በቂ ቦታ እንዲይዝ */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    margin: 15px 0;
 }
 
 .quote-content {
-    font-size: 17px;
+    font-size: 19px;
     font-weight: 600;
     color: #14532d;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     line-height: 1.6;
     width: 100%;
 }
 
 .author-name {
     display: block;
-    font-size: 12px;
+    font-size: 13px;
     color: #16a34a;
     font-weight: 500;
 }
 
 .button-group {
     display: flex;
-    gap: 12px;
+    gap: 14px;
 }
 
 button.action-btn {
@@ -133,16 +139,33 @@ button.action-btn {
     background-color: #22c55e;
     color: #ffffff;
     border: none;
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
 }
 
 button.action-btn:hover {
     background-color: #16a34a;
     transform: translateY(-2px);
+}
+
+/* ለሞባይል ስክሪኖች (Mobile Responsive adjustments) */
+@media (max-width: 480px) {
+    .container {
+        height: 88vh;
+        padding: 20px;
+        border-radius: 20px;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+
+    .quote-content {
+        font-size: 17px;
+    }
 }
