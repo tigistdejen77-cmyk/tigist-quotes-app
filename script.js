@@ -30,7 +30,7 @@ function showQuote(index) {
     
     const current = quotes[index];
     
-    // አማርኛ ከላይ፣ እንግሊዝኛ ከታች በትክክል እንዲገባ ይደረጋል
+    // አማርኛ ከላይ፣ እንግሊዝኛ ከታች በትክክል እንዲቀመጥ ተደርጓል
     amTextEl.textContent = current.amText;
     enTextEl.textContent = current.enText;
     authorEl.textContent = "- " + current.author;
