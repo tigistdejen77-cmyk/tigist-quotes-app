@@ -21,6 +21,7 @@ async function loadQuotes() {
     } catch (error) {
         console.error("Error loading quotes:", error);
         amTextEl.textContent = "መረጃውን ማምጣት አልተቻለም።";
+        enTextEl.textContent = "Failed to load data.";
     }
 }
 
@@ -28,6 +29,8 @@ function showQuote(index) {
     if (quotes.length === 0) return;
     
     const current = quotes[index];
+    
+    // አማርኛ ከላይ፣ እንግሊዝኛ ከታች በትክክል እንዲገባ ይደረጋል
     amTextEl.textContent = current.amText;
     enTextEl.textContent = current.enText;
     authorEl.textContent = "- " + current.author;
