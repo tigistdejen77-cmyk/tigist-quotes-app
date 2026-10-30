@@ -1,104 +1,354 @@
-const API_URL = "https://tigist-quotes-app.onrender.com/api/quotes";
+const express = require('express');
+const cors = require('cors');
 
-let allQuotes = [];
-let currentLang = 'am'; // 'am' ወይም 'en'
-let currentCat = 'love';
-let currentIndex = 0;
+const app = express();
 
-const categoryNames = {
-    love: { am: "❤️ ፍቅር", en: "❤️ Love" },
-    friendship: { am: "🤝 ጓደኝነት", en: "🤝 Friendship" },
-    work: { am: "💼 ስራ", en: "💼 Work" },
-    knowledge: { am: "📚 ዕውቀት", en: "📚 Knowledge" },
-    country: { am: "🇪🇹 ሀገር", en: "🇪🇹 Country" },
-    motivation: { am: "🌱 ተነሳሽነት", en: "🌱 Motivation" }
-};
+app.use(cors());
+app.use(express.json());
 
-const quoteTextEl = document.getElementById("quote-text");
-const authorEl = document.getElementById("quote-author");
-const nextBtn = document.getElementById("next-btn");
-const prevBtn = document.getElementById("prev-btn");
-const langBtn = document.getElementById("lang-btn");
-const subtitleEl = document.getElementById("app-subtitle");
-const catStripEl = document.getElementById("cat-strip");
+// በእያንዳንዱ ምድብ 50 እና ከዚያ በላይ የሆኑ ንጹህ ጥቅሶች (Total 300+ Quotes)
+let quotesData = [
+    // ==========================================
+    // 1. የፍቅር (Love) - 50+ Quotes
+    // ==========================================
+    { id: 1, category: "love", amText: "ፍቅር እና ሰላም ዓለምን ይገዛሉ።", enText: "Love and peace rule the world.", amAuthor: "ዓለም አቀፍ እውነት", enAuthor: "Universal Truth" },
+    { id: 2, category: "love", amText: "መልካም ቃላት እንደ ማር ጣፋጭ ናቸው።", enText: "Kind words are as sweet as honey.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 3, category: "love", amText: "ፍቅር ማንም ሊያሸንፈው የማይችል ኃይል አለው።", enText: "Love has a power that no one can defeat.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 4, category: "love", amText: "መልካም ቃል የልብ መድኃኒት ነው።", enText: "A kind word is the medicine of the heart.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 5, category: "love", amText: "ንጹህ ፍቅር የዘላለም ህይወት ማደሪያ ነው።", enText: "Pure love is the dwelling place of eternal life.", amAuthor: "የፍቅር ጥበብ", enAuthor: "Love Wisdom" },
+    { id: 6, category: "love", amText: "ፍቅር ትዕግስተኛ እና ቸር ነው።", enText: "Love is patient and kind.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 7, category: "love", amText: "በፍቅር የተሰራ ስራ ፍሬው ውብ ነው።", enText: "Work done with love bears beautiful fruit.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 8, category: "love", amText: "የልብ ንግግር በዝምታም ጭምር ይሰማል።", enText: "Heart language is heard even in silence.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 9, category: "love", amText: "ፍቅር ጥላቻን ድል መንሳት ይችላል።", enText: "Love can conquer hatred.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 10, category: "love", amText: "እውነተኛ ፍቅር ጊዜንና ርቀትን አያይም።", enText: "True love sees neither time nor distance.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 11, category: "love", amText: "ርህራሄና ፍቅር የሰው ልጅ ማማ ናቸው።", enText: "Compassion and love are the pinnacle of humanity.", amAuthor: "ሰብአዊነት", enAuthor: "Humanity" },
+    { id: 12, category: "love", amText: "ፍቅር የህይወት ትርጉም ነው።", enText: "Love is the meaning of life.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 13, category: "love", amText: "የተዋደደ ልብ ፈጽሞ አይለያይም።", enText: "A loving heart never truly separates.", amAuthor: "ግጥም", enAuthor: "Poetry" },
+    { id: 14, category: "love", amText: "ለሰው ልጅ ሁሉ የሚሆን ፍቅር ማካፈል ጸጋ ነው።", enText: "Sharing love for all mankind is a grace.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 15, category: "love", amText: "ፍቅር ሲኖር በረከት ሞልቶ ይተርፋል።", enText: "Where love exists, blessings overflow.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 16, category: "love", amText: "የለስላሳ ቃል ቁጣን ያበርዳል።", enText: "A gentle word turns away wrath.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 17, category: "love", amText: "ፍቅር መሠረቱ እውነትና ቅንነት ነው።", enText: "The foundation of love is truth and sincerity.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
+    { id: 18, category: "love", amText: "በፍቅር ዓይን ስትመለከት ሁሉም ነገር ውብ ነው።", enText: "When you look through the eyes of love, everything is beautiful.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 19, category: "love", amText: "የፍቅር ኃይል ከማንኛውም ጦር የጸና ነው።", enText: "The power of love is stronger than any weapon.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 20, category: "love", amText: "ፍቅር የሰውን ልጅ አንድ የሚያደርግ ድልድይ ነው።", enText: "Love is the bridge that unites humanity.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 21, category: "love", amText: "የፍቅር መጀመሪያ ራዕይ መዋደድ ነው።", enText: "The beginning of love is mutual affection.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 22, category: "love", amText: "ንጹህ ፍቅር ፈጽሞ ዋጋ አይጠይቅም።", enText: "Pure love never asks for a price.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 23, category: "love", amText: "በፍቅር ውስጥ ፍርሃት የለም።", enText: "There is no fear in love.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 24, category: "love", amText: "እውነተኛ ፍቅር የነፍስ ዕረፍት ነው።", enText: "True love is the rest of the soul.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 25, category: "love", amText: "የፍቅር መዓዛ ከማንኛውም ሽቱ ይበልጣል።", enText: "The fragrance of love is greater than any perfume.", amAuthor: "ግጥም", enAuthor: "Poetry" },
+    { id: 26, category: "love", amText: "ፍቅር የልብን በር ያለ ቁልፍ ይከፍታል።", enText: "Love opens the door of the heart without a key.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 27, category: "love", amText: "መተሳሰብ የፍቅር ትልቁ መገለጫ ነው።", enText: "Care is the greatest expression of love.", amAuthor: "ማህበረሰብ", enAuthor: "Community" },
+    { id: 28, category: "love", amText: "የተዋደደ ሰው ሀብታም ነው።", enText: "A loved person is rich.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 29, category: "love", amText: "ፍቅር የሰውን ልጅ ልብ ያቀልጣል።", enText: "Love melts the human heart.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 30, category: "love", amText: "በፍቅር ስንኖር ዓለም ውብ ትሆናለች።", enText: "When we live in love, the world becomes beautiful.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 31, category: "love", amText: "የፍቅር ቋንቋ ያለ ቃል ይነገራል።", enText: "The language of love is spoken without words.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 32, category: "love", amText: "ፍቅር የዘላለም ጓደኛ ነው።", enText: "Love is an eternal companion.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 33, category: "love", amText: "የልብ ትርታ የፍቅር ማስታወሻ ነው።", enText: "Heartbeat is a reminder of love.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 34, category: "love", amText: "ፍቅር ስንሰጥ አብሮ ያድጋል።", enText: "Love grows when we give it.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 35, category: "love", amText: "እውነተኛ ፍቅር ጊዜን ይፈታተናል።", enText: "True love defies time.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 36, category: "love", amText: "ፍቅር የህይወት ጣዕም ነው።", enText: "Love is the flavor of life.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 37, category: "love", amText: "የፍቅር እጅ ሰፊ ናት።", enText: "The hand of love is wide.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 38, category: "love", amText: "ፍቅር የድክመት መሸፈኛ ሳይሆን የጥንካሬ ማማ ነው።", enText: "Love is not a cover for weakness, but a tower of strength.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 39, category: "love", amText: "በፍቅር የተሞላ ቤት የሰላም ወደብ ነው።", enText: "A house full of love is a port of peace.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 40, category: "love", amText: "ፍቅር የሰው ልጅ የመጨረሻ መዳረሻ ነው።", enText: "Love is the ultimate destination of humanity.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 41, category: "love", amText: "የተዋደደ ሰው ዕድለኛ ነው።", enText: "A loved person is lucky.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 42, category: "love", amText: "ፍቅር የማያረጅ ውበት ነው።", enText: "Love is an ageless beauty.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 43, category: "love", amText: "ፍቅር በምግባር ይገለጻል።", enText: "Love is expressed through deeds.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
+    { id: 44, category: "love", amText: "የፍቅር ብርሃን ጨለማን ያስወግዳል።", enText: "The light of love dispels darkness.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 45, category: "love", amText: "ፍቅር ፈጽሞ አይወድቅም።", enText: "Love never fails.", amAuthor: "እውነት", enAuthor: "Truth" },
+    { id: 46, category: "love", amText: "የልብ ደስታ የፍቅር ፍሬ ነው።", enText: "The joy of the heart is the fruit of love.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 47, category: "love", amText: "ፍቅር የሁሉ ነገር መጀመሪያ ነው።", enText: "Love is the beginning of everything.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 48, category: "love", amText: "ንጹህ ልብ የፍቅር ማደሪያ ነው።", enText: "A pure heart is the dwelling of love.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 49, category: "love", amText: "ፍቅር የነፍስ ሀብት ነው።", enText: "Love is the wealth of the soul.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 50, category: "love", amText: "ፍቅር ዓለምን የሚያድስ ኃይል አለው።", enText: "Love has the power to renew the world.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
 
-async function loadQuotesFromBackend() {
-    try {
-        const response = await fetch(API_URL);
-        const result = await response.json();
-        
-        if (result.success && result.data.length > 0) {
-            allQuotes = result.data;
-            renderCategories();
-            updateUI();
-        }
-    } catch (error) {
-        console.error("Error loading quotes:", error);
-        quoteTextEl.textContent = "መረጃውን ማምጣት አልተቻለም።";
-    }
-}
+    // ==========================================
+    // 2. ጓደኝነት (Friendship) - 50+ Quotes
+    // ==========================================
+    { id: 51, category: "friendship", amText: "እውነተኛ ጓደኛ በቸርነት ጊዜ ይታወቃል።", enText: "A true friend is known in times of need.", amAuthor: "ማህበረሰብ", enAuthor: "Community" },
+    { id: 52, category: "friendship", amText: "ጥሩ ጓደኛ የህይወት አጋር እና መጽናኛ ነው።", enText: "A good friend is a life partner and comfort.", amAuthor: "ማህበር", enAuthor: "Society" },
+    { id: 53, category: "friendship", amText: "ከክፉ ጓደኛ ይልቅ ለውጥን የሚያሳይ ሩቅ ወዳጅ ይሻላል።", enText: "A distant friend who shows change is better than a bad companion.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 54, category: "friendship", amText: "ጓደኝነት በመተማመን ላይ የተገነባ ግንብ ነው።", enText: "Friendship is a tower built on trust.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 55, category: "friendship", amText: "የእውነተኛ ጓደኛ ምክር እንደ ወርቅ ውድ ነው።", enText: "The advice of a true friend is as precious as gold.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 56, category: "friendship", amText: "ጓደኛ በደስታ ጊዜ የሚሳተፍ በሀዘንም የሚደርስ ነው።", enText: "A friend shares in joy and reaches out in sorrow.", amAuthor: "ማህበረሰብ", enAuthor: "Community" },
+    { id: 57, category: "friendship", amText: "ጥሩ ጓደኛ ልክ እንደ መስታወት ነው፤ እውነትን ያሳያል።", enText: "A good friend is like a mirror; they show the truth.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 58, category: "friendship", amText: "ጓደኝነት ከሀብት በላይ ዋጋ አለው።", enText: "Friendship is worth more than wealth.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 59, category: "friendship", amText: "አብሮ ማደግና መማር የጓደኝነት ውበት ነው።", enText: "Growing and learning together is the beauty of friendship.", amAuthor: "ትምህርት", enAuthor: "Education" },
+    { id: 60, category: "friendship", amText: "ታማኝ ጓደኛ የህይወት ትልቁ ስጦታ ነው።", enText: "A loyal friend is life's greatest gift.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 61, category: "friendship", amText: "ጓደኛ ስህተትን በለስላሳ የሚነቅፍ ነው።", enText: "A friend gently points out mistakes.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
+    { id: 62, category: "friendship", amText: "በችግር ጊዜ የሚጸና ወዳጅ ከወንድም ይበልጣል።", enText: "A friend who stands firm in trouble is better than a brother.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 63, category: "friendship", amText: "የጋራ እሴት ያላቸው ጓደኛሞች ረጅም ጉዞ ይጓዛሉ።", enText: "Friends with shared values travel a long journey.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 64, category: "friendship", amText: "መልካም ጓደኝነት ወደ ስኬት ይመራል።", enText: "Good friendship leads to success.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 65, category: "friendship", amText: "ጓደኛን መምረጥ ህይወትን መምረጥ ነው።", enText: "Choosing a friend is choosing a life path.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 66, category: "friendship", amText: "በቅንነት የተሳሰረ ወዳጅነት ፈጽሞ አይሰበርም።", enText: "Friendship bound by sincerity never breaks.", amAuthor: "ህብረት", enAuthor: "Unity" },
+    { id: 67, category: "friendship", amText: "ጓደኛ የሌለው ሰው እንደ ገዳም ነው (ብቸኛ ነው)።", enText: "A person without friends is like a desert.", amAuthor: "ባህላዊ አባባል", enAuthor: "Cultural Saying" },
+    { id: 68, category: "friendship", amText: "የልጅነት ጓደኝነት የዘላለም ትዝታ ነው።", enText: "Childhood friendship is an eternal memory.", amAuthor: "ትዝታ", enAuthor: "Memory" },
+    { id: 69, category: "friendship", amText: "አብሮ መብላትና መጠጣት ብቻ ሳይሆን አብሮ መቆም ጓደኝነት ነው።", enText: "Friendship is not just eating and drinking together, but standing together.", amAuthor: "ማህበር", enAuthor: "Society" },
+    { id: 70, category: "friendship", amText: "እውነተኛ ወዳጅ የነፍስ ጓደኛ ነው።", enText: "A true friend is a soul companion.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 71, category: "friendship", amText: "ጓደኛ የደስታ አጋር ነው።", enText: "A friend is a partner in joy.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 72, category: "friendship", amText: "የጓደኛ እጅ ከክፉ ይጠብቃል።", enText: "A friend's hand protects from evil.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 73, category: "friendship", amText: "ጥሩ ወዳጅ ሁልጊዜም በአጠገብ አለ።", enText: "A good friend is always close by.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 74, category: "friendship", amText: "ጓደኝነት የልብ ስምምነት ነው።", enText: "Friendship is harmony of the heart.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 75, category: "friendship", amText: "የታማኝ ወዳጅ ቃል እንደ ሐር የለሰለሰ ነው።", enText: "The word of a faithful friend is smooth as silk.", amAuthor: "ግጥም", enAuthor: "Poetry" },
+    { id: 76, category: "friendship", amText: "ጓደኛ የህይወት ሻማ ነው።", enText: "A friend is the candle of life.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 77, category: "friendship", amText: "ወዳጅነት ጊዜንና ቦታን አያሸንፍም።", enText: "Friendship overcomes time and place.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 78, category: "friendship", amText: "የብዙ ጓደኛ ባለቤት ጠንካራ ነው።", enText: "The owner of many friends is strong.", amAuthor: "ማህበረሰብ", enAuthor: "Community" },
+    { id: 79, category: "friendship", amText: "ጓደኛ ምስጢር ጠባቂ ነው።", enText: "A friend is a keeper of secrets.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
+    { id: 80, category: "friendship", amText: "እውነተኛ ወዳጅ ማግኘት ትልቅ ዕድል ነው።", enText: "Finding a true friend is a great chance.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 81, category: "friendship", amText: "ጓደኝነት የህይወት ማጣፈጫ ነው።", enText: "Friendship is the spice of life.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 82, category: "friendship", amText: "የጋራ አላማ ጓደኝነትን ያጠናክራል።", enText: "Shared purpose strengthens friendship.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 83, category: "friendship", amText: "ጓደኛ በደስታ ጊዜ ይጨምራል።", enText: "A friend multiplies joy.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 84, category: "friendship", amText: "የወዳጅ ምክር የህይወት መብራት ነው።", enText: "A friend's advice is the lamp of life.", amAuthor: "ትምህርት", enAuthor: "Education" },
+    { id: 85, category: "friendship", amText: "ወዳጅነት መተማመን ላይ የቆመ ሀብት ነው።", enText: "Friendship is wealth built on trust.", amAuthor: "ኢኮኖሚ", enAuthor: "Economics" },
+    { id: 86, category: "friendship", amText: "ጥሩ ጓደኛ የልብ ትርታ ይጋራል።", enText: "A good friend shares heartbeats.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 87, category: "friendship", amText: "ጓደኛ ከባህር ማዶ የሚሻል ቅርብ ሀብት ነው።", enText: "A friend is a close wealth better than across the sea.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 88, category: "friendship", amText: "የወዳጅነት ጥልቀት በፈተና ይታወቃል።", enText: "The depth of friendship is known in trials.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 89, category: "friendship", amText: "ጓደኛ የሀዘን ማቅለያ ነው።", enText: "A friend is a reliever of sorrow.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 90, category: "friendship", amText: "በቅንነት የቆመ ወዳጅነት ዘለአለማዊ ነው።", enText: "Friendship standing in sincerity is eternal.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 91, category: "friendship", amText: "ጓደኛ የራስህ ሌላኛው ገጽታ ነው።", enText: "A friend is your other aspect.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 92, category: "friendship", amText: "ወዳጅነት የጋራ መረዳዳት ማሳያ ነው።", enText: "Friendship is a display of mutual assistance.", amAuthor: "ማህበር", enAuthor: "Society" },
+    { id: 93, category: "friendship", amText: "የጓደኛ አብሮነት ብርሃን ይሰጣል።", enText: "Friend's companionship gives light.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 94, category: "friendship", amText: "እውነተኛ ወዳጅ ፈጽሞ አያሳፍርም።", enText: "A true friend never disappoints.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 95, category: "friendship", amText: "ጓደኝነት የሰውን ልጅ ያስተሳስራል።", enText: "Friendship binds humanity together.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 96, category: "friendship", amText: "የወዳጅ ማስታወሻ የልብ ዕረፍት ነው።", enText: "A friend's memory is heart's rest.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 97, category: "friendship", amText: "ጓደኛ በመልካም ስራ ይታወቃል።", enText: "A friend is known by good deeds.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
+    { id: 98, category: "friendship", amText: "ወዳጅነት የትውልድ ድልድይ ነው።", enText: "Friendship is a bridge of generations.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 99, category: "friendship", amText: "የጥሩ ጓደኛ ፊት ፈገግታን ይፈጥራል።", enText: "A good friend's face creates a smile.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 100, category: "friendship", amText: "ጓደኝነት የህይወት ውብ ስዕል ነው።", enText: "Friendship is a beautiful painting of life.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
 
-function renderCategories() {
-    catStripEl.innerHTML = '';
-    const categories = Object.keys(categoryNames);
+    // ==========================================
+    // 3. ስራ (Work) - 50+ Quotes
+    // ==========================================
+    { id: 101, category: "work", amText: "ዛሬ የሰራኸው ስራ የነገው ስኬትህ መሠረት ነው።", enText: "The work you do today is the foundation of your success tomorrow.", amAuthor: "ዘመናዊ ፍልስፍና", enAuthor: "Modern Philosophy" },
+    { id: 102, category: "work", amText: "ትጋት የሌለው ተስፋ ፍሬ አይሰጥም።", enText: "Hope without diligence bears no fruit.", amAuthor: "ምሳሌያዊ አነጋገር", enAuthor: "Idiom" },
+    { id: 103, category: "work", amText: "ጠንክሮ መስራት ፍሬውን በጊዜው ያመጣል።", enText: "Hard work brings its fruit in due time.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 104, category: "work", amText: "ስራን መውደድ የስኬት ቁልፍ ነው።", enText: "Loving one's work is the key to success.", amAuthor: "ሙያዊ ስነ-ምግባር", enAuthor: "Professional Ethics" },
+    { id: 105, category: "work", amText: "ተግባር ከቃል በላይ ድምጽ አለው።", enText: "Actions speak louder than words.", amAuthor: "ዓለም አቀፍ አባባል", enAuthor: "Global Proverb" },
+    { id: 106, category: "work", amText: "አብሮ መስራት ውጤትን እጥፍ ያደርጋል።", enText: "Working together doubles the results.", amAuthor: "ንግድ", enAuthor: "Business" },
+    { id: 107, category: "work", amText: "ትጋት ድህነትን ያርቃል።", enText: "Diligence keeps poverty away.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 108, category: "work", amText: "ጠንካራ ስራ የከፍታ መሰላል ነው።", enText: "Hard work is the ladder to heights.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 109, category: "work", amText: "በሙያህ ታማኝ ሁን፤ ውጤቱ ራሱ ይናገራል።", enText: "Be faithful in your profession; the result will speak for itself.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
+    { id: 110, category: "work", amText: "ጊዜን አክብሮ መስራት ባለሙያነት ነው።", enText: "Working while respecting time is professionalism.", amAuthor: "ሙያ", enAuthor: "Profession" },
+    { id: 111, category: "work", amText: "ውጤታማ ስራ የሚሰራው በትኩረት ነው።", enText: "Effective work is done with focus.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 112, category: "work", amText: "የሰራተኛ እጅ የተባረከ ነው።", enText: "The hand of a worker is blessed.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 113, category: "work", amText: "ትናንሽ ስራዎችን በጥራት መስራት ለታላቅ ስኬት ያበቃል።", enText: "Doing small tasks with quality leads to great success.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 114, category: "work", amText: "ስራ ክብር ነው።", enText: "Work is dignity.", amAuthor: "ህብረተሰብ", enAuthor: "Society" },
+    { id: 115, category: "work", amText: "ፈጠራና ድካም ሲዋሃዱ ድንቅ ስራ ይወጣል።", enText: "When creativity and labor merge, wonderful work emerges.", amAuthor: "ቴክኖሎጂ", enAuthor: "Technology" },
+    { id: 116, category: "work", amText: "ለስራ ታማኝ መሆን ለራስ ክብር መስጠት ነው።", enText: "Being loyal to work is respecting oneself.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
+    { id: 117, category: "work", amText: "የዕለት ድካም የምሽት ዕረፍት ጣዕም ነው።", enText: "The day's toil is the flavor of evening rest.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 118, category: "work", amText: "ትጋት የሌለው ዕውቀት እንደ የደረቀ ዛፍ ነው።", enText: "Knowledge without diligence is like a withered tree.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 119, category: "work", amText: "በጋራ የተሰራ ስራ በውጤቱ ያምራል።", enText: "Work done together is beautiful in its result.", amAuthor: "ትብብር", enAuthor: "Cooperation" },
+    { id: 120, category: "work", amText: "ዛሬ የሚሰራ ስራ ነገ ለሚመጣው ድል መሰረት ነው።", enText: "Work done today is the foundation for tomorrow's victory.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 121, category: "work", amText: "ትጋት የስኬት እናት ናት።", enText: "Diligence is the mother of success.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 122, category: "work", amText: "የሰራተኛ ድካም ከንቱ አይሆንም።", enText: "A worker's labor is never in vain.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 123, category: "work", amText: "ትክክለኛ እቅድ የስኬት نصف (ግማሽ) ነው።", enText: "Proper planning is half of success.", amAuthor: "ንግድ", enAuthor: "Business" },
+    { id: 124, category: "work", amText: "ስራን በፍቅር መስራት ውጤትን ያሳድጋል።", enText: "Working with love increases results.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 125, category: "work", amText: "የዕለት ትጋት የዓመት በረከት ነው።", enText: "Daily diligence is annual blessing.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 126, category: "work", amText: "ሙያ የሰጠውን ባለሙያ ያከብራል።", enText: "Profession honors the practitioner.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 127, category: "work", amText: "ትዕግስትና ስራ ተደጋጋፊ ናቸው።", enText: "Patience and work are complementary.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 128, category: "work", amText: "የፈጠራ ስራ አዲስ አድማስ ይከፍታል።", enText: "Creative work opens new horizons.", amAuthor: "ቴክኖሎጂ", enAuthor: "Technology" },
+    { id: 129, category: "work", amText: "ጠንካራ ሰራተኛ የድርጅቱ አምድ ነው።", enText: "A hard worker is the pillar of the organization.", amAuthor: "ንግድ", enAuthor: "Business" },
+    { id: 130, category: "work", amText: "ትጋት የሌለው ምኞት ህልም ብቻ ነው።", enText: "Desire without diligence is just a dream.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 131, category: "work", amText: "ስራን ማዘግየት ስኬትን ማዘግየት ነው።", enText: "Delaying work is delaying success.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 132, category: "work", amText: "የእጅ ጥበብ የባህል መገለጫ ነው።", enText: "Handcraft is a reflection of culture.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 133, category: "work", amText: "የቁጠባና የስራ ትብብር ሀብት ያፈራል።", enText: "Cooperation of saving and work generates wealth.", amAuthor: "ኢኮኖሚ", enAuthor: "Economics" },
+    { id: 134, category: "work", amText: "ትኩረት ስራን ጥራት ያለው ያደርገዋል።", enText: "Focus makes work high quality.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 135, category: "work", amText: "ስራ የሰውን አእምሮ ይጠብቃል።", enText: "Work keeps the human mind sharp.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 136, category: "work", amText: "በታማኝነት የተሰራ ስራ ሁልጊዜም ይመሰገናል።", enText: "Work done faithfully is always praised.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
+    { id: 137, category: "work", amText: "ትጋት የድህነት ጠላት ነው።", enText: "Diligence is the enemy of poverty.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 138, category: "work", amText: "የሰራተኛው ደስታ በውጤቱ ላይ ይታያል።", enText: "A worker's happiness is seen in their result.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 139, category: "work", amText: "ስራን ማቃለል ስኬትን ማጣት ነው።", enText: "Underestimating work is losing success.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 140, category: "work", amText: "ትጋት የወደፊት ህይወትን ያበራል።", enText: "Diligence brightens future life.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 141, category: "work", amText: "የቡድን ስራ ተራሮችን ያንቀሳቅሳል።", enText: "Teamwork moves mountains.", amAuthor: "ንግድ", enAuthor: "Business" },
+    { id: 142, category: "work", amText: "ስራ በህይወት ውስጥ ትልቅ ትርጉም አለው።", enText: "Work has a great meaning in life.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 143, category: "work", amText: "ትጋትና ጽናት ድልን ያመጣሉ።", enText: "Diligence and perseverance bring victory.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 144, category: "work", amText: "የዛሬው ድካም የነገው እረፍት ነው።", enText: "Today's toil is tomorrow's rest.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 145, category: "work", amText: "ስራ የሰውን ክብር ከፍ ያደርጋል።", enText: "Work raises human dignity.", amAuthor: "ህብረተሰብ", enAuthor: "Society" },
+    { id: 146, category: "work", amText: "ትጋት የሌለው ሰው እንደ መርከብ ያለ መልህቅ ነው።", enText: "A person without diligence is like a ship without an anchor.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 147, category: "work", amText: "ጥሩ ሰራተኛ ሁልጊዜ የሚፈልጉት ነው።", enText: "A good worker is always in demand.", amAuthor: "ኢኮኖሚ", enAuthor: "Economics" },
+    { id: 148, category: "work", amText: "ስራ የሰውን ችሎታ ያጎለብታል።", enText: "Work hones human skills.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 149, category: "work", amText: "ትጋት የለውጥ ሞተር ነው።", enText: "Diligence is the engine of change.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 150, category: "work", amText: "ስራ በህይወት ውስጥ የድል ማሳያ ነው።", enText: "Work is the display of victory in life.", amAuthor: "ስኬት", enAuthor: "Success" },
 
-    categories.forEach(catKey => {
-        const btn = document.createElement('button');
-        btn.className = `cat-btn ${catKey === currentCat ? 'active' : ''}`;
-        btn.textContent = currentLang === 'am' ? categoryNames[catKey].am : categoryNames[catKey].en;
-        btn.addEventListener('click', () => {
-            currentCat = catKey;
-            currentIndex = 0;
-            renderCategories();
-            updateUI();
-        });
-        catStripEl.appendChild(btn);
+    // ==========================================
+    // 4. ዕውቀት (Knowledge) - 50+ Quotes
+    // ==========================================
+    { id: 151, category: "knowledge", amText: "ዕውቀት የሰው ልጅ የብርሃን መብራት ነው።", enText: "Knowledge is the light of mankind.", amAuthor: "ትምህርት", enAuthor: "Education" },
+    { id: 152, category: "knowledge", amText: "መማር ማቆም ማለት ማደግ ማቆም ነው።", enText: "To stop learning is to stop growing.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 153, category: "knowledge", amText: "ንባብ አእምሮን ያሰፋል።", enText: "Reading broadens the mind.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 154, category: "knowledge", amText: "የዕውቀት ባለቤት የሆነ ሰው ሁልጊዜም አሸናፊ ነው።", enText: "A person of knowledge is always victorious.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 155, category: "knowledge", amText: "ዕውቀት በሥራ ሲተገበር ኃይል ይሆናል።", enText: "Knowledge becomes power when applied.", amAuthor: "ሳይንስ", enAuthor: "Science" },
+    { id: 156, category: "knowledge", amText: "ጥበብ ከሀብት ትበልጣለች።", enText: "Wisdom is better than wealth.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 157, category: "knowledge", amText: "መማር እድሜ አይገድበውም።", enText: "Learning has no age limit.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 158, category: "knowledge", amText: "የተማረ አእምሮ ፈጽሞ አይጨልምም።", enText: "An educated mind never darkens.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 159, category: "knowledge", amText: "ንባብ የነፍስ ምግብ ነው።", enText: "Reading is food for the soul.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 160, category: "knowledge", amText: "ዕውቀት የትውልድ መሻገሪያ ድልድይ ነው።", enText: "Knowledge is the bridge for generations.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 161, category: "knowledge", amText: "ምርምር አዲስ እውነትን ያፈልቃል።", enText: "Research generates new truth.", amAuthor: "ሳይንስ", enAuthor: "Science" },
+    { id: 162, category: "knowledge", amText: "ጥሩ መምህር የህይወት መብራት ነው።", enText: "A good teacher is the lamp of life.", amAuthor: "ትምህርት", enAuthor: "Education" },
+    { id: 163, category: "knowledge", amText: "ዕውቀት ያለው ሰው በየትኛውም ቦታ ይከበራል።", enText: "A knowledgeable person is respected everywhere.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 164, category: "knowledge", amText: "መጻሕፍት ዝም ያሉ ጓደኞች ናቸው።", enText: "Books are silent friends.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 165, category: "knowledge", amText: "ጥበብ ከሰዎች ጋር የመኖር ጥበብ ነው።", enText: "Wisdom is the art of living with people.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 166, category: "knowledge", amText: "ዕውቀት ድህነትን ያጠፋል።", enText: "Knowledge eliminates poverty.", amAuthor: "ኢኮኖሚ", enAuthor: "Economics" },
+    { id: 167, category: "knowledge", amText: "መማር የማያልቅ የህይወት ጉዞ ነው።", enText: "Learning is an endless journey of life.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 168, category: "knowledge", amText: "የዕውቀት ሻማ በዙሪያው ያለውን ጨለማ ያበራል።", enText: "The candle of knowledge illuminates the darkness around it.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 169, category: "knowledge", amText: "ጥልቅ ንባብ ጥልቅ አስተሳሰብን ይፈጥራል።", enText: "Deep reading creates deep thinking.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 170, category: "knowledge", amText: "ሳይንስ ዓለምን ቀይሯል።", enText: "Science has changed the world.", amAuthor: "ቴክኖሎጂ", enAuthor: "Technology" },
+    { id: 171, category: "knowledge", amText: "ዕውቀት የሰው ልጅ ትልቁ ጸጋ ነው።", enText: "Knowledge is humanity's greatest grace.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 172, category: "knowledge", amText: "መጻሕፍትን ማንበብ ዓለምን መዞር ነው።", enText: "Reading books is traveling the world.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 173, category: "knowledge", amText: "ጥበበኛ ሰው ሁልጊዜ አዳዲስ ነገሮችን ይማራል።", enText: "A wise person always learns new things.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 174, category: "knowledge", amText: "ዕውቀት ከወርቅ ይበልጣል።", enText: "Knowledge is better than gold.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 175, category: "knowledge", amText: "መማር የነጻነት መጀመሪያ ነው።", enText: "Learning is the beginning of freedom.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 176, category: "knowledge", amText: "የዕውቀት ሰንሰለት ትውልድን ያገናኛል።", enText: "The chain of knowledge connects generations.", amAuthor: "ትምህርት", enAuthor: "Education" },
+    { id: 177, category: "knowledge", amText: "ጥልቅ ዕውቀት ትህትናን ያመጣል።", enText: "Deep knowledge brings humility.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 178, category: "knowledge", amText: "ንባብ የአእምሮ ማጎልበቻ ነው።", enText: "Reading is brain booster.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 179, category: "knowledge", amText: "ዕውቀት የሌለው ህብረተሰብ አይመራም።", enText: "A society without knowledge cannot lead.", amAuthor: "ሶሺዮሎጂ", enAuthor: "Sociology" },
+    { id: 180, category: "knowledge", amText: "ጥበብ የህይወት માર્ગ (መንገድ) ናት።", enText: "Wisdom is the path of life.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 181, category: "knowledge", amText: "መማር የነገ ተስፋችን ነው።", enText: "Learning is our hope for tomorrow.", amAuthor: "ትምህርት", enAuthor: "Education" },
+    { id: 182, category: "knowledge", amText: "ሳይንስና ቴክኖሎጂ የዕውቀት ውጤቶች ናቸው።", enText: "Science and technology are products of knowledge.", amAuthor: "ቴክኖሎጂ", enAuthor: "Technology" },
+    { id: 183, category: "knowledge", amText: "ዕውቀት ሰውን ከድንቁርና ያወጣል።", enText: "Knowledge pulls man out of ignorance.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 184, category: "knowledge", amText: "መጻሕፍት የዘላለም ሀብት ናቸው።", enText: "Books are eternal wealth.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 185, category: "knowledge", amText: "ጥበበኛ ሰው ከስህተቱ ይማራል።", enText: "A wise person learns from their mistakes.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 186, category: "knowledge", amText: "ዕውቀት የሰውን አድማስ ያሰፋል።", enText: "Knowledge broadens human horizon.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 187, category: "knowledge", amText: "መማር ማስተማር የሰላም መሰረት ነው።", enText: "Learning and teaching is the foundation of peace.", amAuthor: "ህብረተሰብ", enAuthor: "Society" },
+    { id: 188, category: "knowledge", amText: "የዕውቀት ሰንሰለት ፈጽሞ አይበጠስም።", enText: "The chain of knowledge never breaks.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 189, category: "knowledge", amText: "ጥበብ የችግሮች መፍትሄ ናት።", enText: "Wisdom is the solution to problems.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 190, category: "knowledge", amText: "ዕውቀት በጊዜ ሂደት ያድጋል።", enText: "Knowledge grows over time.", amAuthor: "ሳይንስ", enAuthor: "Science" },
+    { id: 191, category: "knowledge", amText: "ንባብ የሰውን ስብዕና ይቀርጻል።", enText: "Reading shapes human personality.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 192, category: "knowledge", amText: "የተማረ ትውልድ ሀገርን ይገነባል።", enText: "An educated generation builds a country.", amAuthor: "ሀገር", enAuthor: "Country" },
+    { id: 193, category: "knowledge", amText: "ጥበብ የሰው ልጅ ክብር ናት።", enText: "Wisdom is human dignity.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 194, category: "knowledge", amText: "ዕውቀት የነገን ቀን ያበራል።", enText: "Knowledge brightens tomorrow.", amAuthor: "ትምህርት", enAuthor: "Education" },
+    { id: 195, category: "knowledge", amText: "መማር የራስን አቅም ማወቅ ነው።", enText: "Learning is knowing one's potential.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 196, category: "knowledge", amText: "መጻሕፍት የዕውቀት ማከማቻ ናቸው።", enText: "Books are stores of knowledge.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 197, category: "knowledge", amText: "ጥበበኛ ሰው ሁልጊዜ አድማጩ ነው።", enText: "A wise person is always a listener.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 198, category: "knowledge", amText: "ዕውቀት የማይቀማ ሀብት ነው።", enText: "Knowledge is unstealable wealth.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 199, category: "knowledge", amText: "መማር የህይወት ትልቁ ስኬት ነው።", enText: "Learning is life's greatest success.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 200, category: "knowledge", amText: "ዕውቀትና ጥበብ ዓለምን ይመራሉ።", enText: "Knowledge and wisdom rule the world.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+
+    // ==========================================
+    // 5. ሀገር (Country) - 50+ Quotes
+    // ==========================================
+    { id: 201, category: "country", amText: "ሀገር የባለቤቷ ማረፊያ ናት፤ ከሀገር ውጪ ሰላም የለም።", enText: "A country is the sanctuary of its owner; there is no peace away from home.", amAuthor: "የሀገር አባባል", enAuthor: "Country Proverb" },
+    { id: 202, category: "country", amText: "ለሀገር መቆም የክብር ሁሉ ከፍታ ነው።", enText: "Standing for one's country is the height of honor.", amAuthor: "ሀገራዊ ፍልስፍና", enAuthor: "National Philosophy" },
+    { id: 203, category: "country", amText: "የሀገር ፍቅር ከምድር በላይ ከፍ ያለ ክብር ነው።", enText: "Patriotism is a dignity higher than the earth.", amAuthor: "ባህላዊ ጥበብ", enAuthor: "Cultural Wisdom" },
+    { id: 204, category: "country", amText: "ህብረት የሀገር ብርታት ነው።", enText: "Unity is the strength of a country.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 205, category: "country", amText: "የሀገርን ሰላም መጠበቅ የሁሉ ሃላፊነት ነው።", enText: "Protecting the peace of the country is everyone's responsibility.", amAuthor: "ህብረተሰብ", enAuthor: "Society" },
+    { id: 206, category: "country", amText: "ባህልና ታሪክ የሀገር መገለጫ ጸጋዎች ናቸው።", enText: "Culture and history are the defining grace of a country.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 207, category: "country", amText: "ለሀገር የሚሰጥ መስዋዕትነት ትልቁ ክብር ነው።", enText: "Sacrifice given for the country is the greatest honor.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 208, category: "country", amText: "የሀገር ልማት የሚጀምረው ከራሳችን ነው።", enText: "Country development starts from ourselves.", amAuthor: "ልማት", enAuthor: "Development" },
+    { id: 209, category: "country", amText: "የሀገር አንድነት የማይበጠስ ገመድ ነው።", enText: "The unity of a country is an unbreakable cord.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 210, category: "country", amText: "ኢትዮጵያዊነት የክብርና የህብረት ምልክት ነው።", enText: "Ethiopianism is a symbol of honor and unity.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 211, category: "country", amText: "የሀገርን ፊት ማቀንናት የትውልድ ሃላፊነት ነው።", enText: "Brighter future of the country is a generation's responsibility.", amAuthor: "ትውልድ", enAuthor: "Generation" },
+    { id: 212, category: "country", amText: "ሰላም የሰፈነባት ሀገር የሁሉ ናፍቆት ናት።", enText: "A country filled with peace is everyone's longing.", amAuthor: "ሰላም", enAuthor: "Peace" },
+    { id: 213, category: "country", amText: "የሀገር ፍቅር በልብ የሚታረስ ክቡር ስሜት ነው።", enText: "Patriotism is a precious feeling cultivated in the heart.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 214, category: "country", amText: "የሀገር ሀብት የህዝብዋ ልፋት ነው።", enText: "The wealth of a country is the labor of its people.", amAuthor: "ኢኮኖሚ", enAuthor: "Economics" },
+    { id: 215, category: "country", amText: "በጋራ የቆመች ሀገር ፈጽሞ አትወድቅም።", enText: "A country standing together never falls.", amAuthor: "ህብረት", enAuthor: "Unity" },
+    { id: 216, category: "country", amText: "የአባት አጥንት ያረፈባት መሬት የተከበረች ናት።", enText: "The land where ancestors rested is sacred.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 217, category: "country", amText: "ለሀገር ዕድገት እውቀትና ትጋት ቀዳሚዎች ናቸው።", enText: "Knowledge and diligence are primary for country growth.", amAuthor: "ዕድገት", enAuthor: "Growth" },
+    { id: 218, category: "country", amText: "የሀገር ክብር የዜጎቿ ሰብአዊነት ይገለጻል።", enText: "Country honor is expressed through citizens' humanity.", amAuthor: "ሰብአዊነት", enAuthor: "Humanity" },
+    { id: 219, category: "country", amText: "ትውልዱ ለሀገሩ ታማኝ ሲሆን ሀገር ታበራለች።", enText: "When the generation is loyal to its country, it shines.", amAuthor: "ወደፊት", enAuthor: "Future" },
+    { id: 220, category: "country", amText: "የሀገር ሉዓላዊነት የነጻነት ማማ ነው።", enText: "National sovereignty is the tower of freedom.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 221, category: "country", amText: "ዜጋ ለሀገሩ ሲተጋ ሀገር ታድጋለች።", enText: "When a citizen strives for their country, it grows.", amAuthor: "ልማት", enAuthor: "Development" },
+    { id: 222, category: "country", amText: "የሀገር ባህል የብሔራዊ ማንነት መታወቂያ ነው።", enText: "National culture is the identity of national identity.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 223, category: "country", amText: "ለሀገር የሚደረግ ስራ ከምንም በላይ ቅድሚያ አለው።", enText: "Work done for the country has priority over everything.", amAuthor: "ሀገራዊነት", enAuthor: "Patriotism" },
+    { id: 224, category: "country", amText: "የሀገር ሰላም የልማት መሰረት ነው።", enText: "Country peace is the foundation of development.", amAuthor: "ሰላም", enAuthor: "Peace" },
+    { id: 225, category: "country", amText: "የአገር ፍቅር የማያልቅ ነዳጅ ነው።", enText: "Patriotism is endless fuel.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 226, category: "country", amText: "አገር ቤታችን ናት፤ መጠበቅም ግደታችን ነው።", enText: "Country is our home; protecting it is our duty.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 227, category: "country", amText: "የታሪክ ባለጸጋ የሆነች ሀገር ትልቅ ክብር አላት።", enText: "A country rich in history has great honor.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 228, category: "country", amText: "የዜጎች ህብረት የሀገር የማይበገር ጋሻ ነው።", enText: "Citizens' unity is the invincible shield of a country.", amAuthor: "ህብረት", enAuthor: "Unity" },
+    { id: 229, category: "country", amText: "ሀገር በልጆቿ ጥረት ታድጋለች።", enText: "A country grows through the efforts of its children.", amAuthor: "ዕድገት", enAuthor: "Growth" },
+    { id: 230, category: "country", amText: "የሀገር ክብር የሁሉ ነገር ፊተኛ ነው።", enText: "National honor comes first above all.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 231, category: "country", amText: "ለሀገር መልካም ማሰብ የትውልድ ኃላፊነት ነው።", enText: "Thinking well of the country is generation's responsibility.", amAuthor: "ትውልድ", enAuthor: "Generation" },
+    { id: 232, category: "country", amText: "የሀገር ተፈጥሮ ጸጋዎች የህዝብ መተዳደሪያ ናቸው።", enText: "Natural resources of a country are people's livelihood.", amAuthor: "ኢኮኖሚ", enAuthor: "Economics" },
+    { id: 233, category: "country", amText: "ሀገራዊ ፍቅር ከራስ ወዳድነት ያወጣል።", enText: "Patriotism frees from selfishness.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 234, category: "country", amText: "የሀገር ታሪክ የወደፊት ጉዞአችን መሪ ነው።", enText: "Country history is the guide of our future journey.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 235, category: "country", amText: "አገር ስትጸና ዜጎቿ በሰላም ይኖራሉ።", enText: "When a country stands firm, its citizens live in peace.", amAuthor: "ሰላም", enAuthor: "Peace" },
+    { id: 236, category: "country", amText: "የሀገር ፍቅር በعمل (በተግባር) ይታያል።", enText: "Patriotism is shown through action.", amAuthor: "ተግባር", enAuthor: "Action" },
+    { id: 237, category: "country", amText: "ልዩነቶቻችንን በማጥበብ ሀገርን እናስቀድም።", enText: "By narrowing our differences, let's put the country first.", amAuthor: "ህብረት", enAuthor: "Unity" },
+    { id: 238, category: "country", amText: "የሀገር እድገት የሚለካው በዜጎች ንቃተ ህሊና ነው።", enText: "Country growth is measured by citizens' awareness.", amAuthor: "ዕድገት", enAuthor: "Growth" },
+    { id: 239, category: "country", amText: "አገር የማت (የማትቀየር) የዘላለም ማረፊያ ናት።", enText: "Country is an unchangeable eternal resting place.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 240, category: "country", amText: "የአገር ጠባቂዎች የክብር ባለቤቶች ናቸው።", enText: "Protectors of the country are owners of honor.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 241, category: "country", amText: "ሀገር የሁላችንም የጋራ እናት ናት።", enText: "Country is the common mother of us all.", amAuthor: "ባህል", enAuthor: "Culture" },
+    { id: 242, category: "country", amText: "ለሀገር የሚደረግ መስዋዕትነት ታሪክ ያስታውሰዋል።", enText: "Sacrifice made for the country is remembered by history.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 243, category: "country", amText: "የሀገር ሰላም ከወርቅ በላይ ውድ ነው።", enText: "Country peace is more precious than gold.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 244, category: "country", amText: "ሀገር በሰላም ስትሞላ ልብ ይረካል።", enText: "When a country fills with peace, the heart rests.", amAuthor: "ሰላም", enAuthor: "Peace" },
+    { id: 245, category: "country", amText: "የሀገር ፍቅር ማንም ሊያጠፋው የማይችል እሳት ነው።", enText: "Patriotism is a fire that no one can extinguish.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 246, category: "country", amText: "አገር ማፍራት ትልቅ የህይወት ስኬት ነው።", enText: "Building a country is a great life success.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 247, category: "country", amText: "የሀገር አንድነት የጥንካሬያችን ሚጢጢ (መሰረት) ነው።", enText: "Country unity is the foundation of our strength.", amAuthor: "ህብረት", enAuthor: "Unity" },
+    { id: 248, category: "country", amText: "ለሀገር ታማኝ መሆን የሞራል ልዕልና ነው።", enText: "Being loyal to the country is moral supremacy.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
+    { id: 249, category: "country", amText: "የሀገር ብልጽግና የሁሉ ፍላጎት ነው።", enText: "Country prosperity is everyone's desire.", amAuthor: "ልማት", enAuthor: "Development" },
+    { id: 250, category: "country", amText: "ሀገር የዘላለም ኩራታችን ናት።", enText: "Country is our eternal pride.", amAuthor: "ባህል", enAuthor: "Culture" },
+
+    // ==========================================
+    // 6. ተነሳሽነት (Motivation) - 50+ Quotes
+    // ==========================================
+    { id: 251, category: "motivation", amText: "ትዕግስት የሁሉም ስኬት መሠረት ናት።", enText: "Patience is the foundation of all success.", amAuthor: "ጥንታዊ አባባል", enAuthor: "Ancient Saying" },
+    { id: 252, category: "motivation", amText: "በራስ መተማመን ለስኬት የመጀመሪያው ጀማሪ ነው።", enText: "Self-confidence is the first step to success.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 253, category: "motivation", amText: "ማመን ማለት ከግማሽ በላይ ማሸነፍ ነው።", enText: "Believing is more than half the victory.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 254, category: "motivation", amText: "ተስፋ አለመቁረጥ የድል መጀመሪያ ነው።", enText: "Never giving up is the beginning of victory.", amAuthor: "ጀግንነት", enAuthor: "Courage" },
+    { id: 255, category: "motivation", amText: "ድፍረት የፍርሃት አለመኖር ሳይሆን ድል መንሳት ነው።", enText: "Courage is not the absence of fear, but conquering it.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 256, category: "motivation", amText: "ትልቅ ህልም አለህ? ጠንክረህ ሰራለት።", enText: "Do you have a big dream? Work hard for it.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 257, category: "motivation", amText: "ብሩህ አመለካከት በጨለማ ውስጥ ብርሃን ያያል።", enText: "An optimistic attitude sees light in the darkness.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 258, category: "motivation", amText: "ጽናት የድል አክሊል ነው።", enText: "Perseverance is the crown of victory.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 259, category: "motivation", amText: "ዛሬ የጀመርከው ትንሽ እርምጃ ነገ ትልቅ ለውጥ ያመጣል።", enText: "The small step you started today brings big change tomorrow.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 260, category: "motivation", amText: "ውድቀት ከስኬት በፊት ያለው ትምህርት ቤት ነው።", enText: "Failure is the school before success.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 261, category: "motivation", amText: "አእምሮህን በድል ሀሳብ ሙላው።", enText: "Fill your mind with thoughts of victory.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 262, category: "motivation", amText: "ፈተናዎች ጠንካራ እንድንሆን ያደርጉናል።", enText: "Challenges make us stronger.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 263, category: "motivation", amText: "የራስህን ታሪክ ዛሬውኑ ጻፈው።", enText: "Write your own story starting today.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 264, category: "motivation", amText: "እያንዳንዱ ቀን አዲስ ጀማሪ ሊሆን ይችላል።", enText: "Every day can be a new beginning.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 265, category: "motivation", amText: "ዓላማ ያለው ሰው ማቆሚያ አያውቅም።", enText: "A person with a purpose knows no stop.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 266, category: "motivation", amText: "ለስኬት አቋራጭ መንገድ የለም፤ ትጋት ብቻ ነው።", enText: "There is no shortcut to success; only diligence.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 267, category: "motivation", amText: "በራስህ እመን፤ ዓለምም በአንተ ታምናለች።", enText: "Believe in yourself; the world will believe in you too.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 268, category: "motivation", amText: "ትናንትና ማስተካከል አይቻልም፣ ነገ ግን በእጅህ ላይ ነው።", enText: "Yesterday cannot be fixed, but tomorrow is in your hands.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 269, category: "motivation", amText: "ድል የሚገኘው በታላቅ መስዋዕትነትና ጥረት ነው።", enText: "Victory is found through great sacrifice and effort.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 270, category: "motivation", amText: "ፈገግታህ የጥንካሬህ መገለጫ ነው።", enText: "Your smile is a reflection of your strength.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 271, category: "motivation", amText: "ተስፋ የህይወት நง (መልህቅ) ነው።", enText: "Hope is the anchor of life.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 272, category: "motivation", amText: "አንተ ማሸነፍ ትችላለህ፤ ማመን ብቻ ነው የሚጠበቅብህ።", enText: "You can win; you just need to believe.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 273, category: "motivation", amText: "ትናንሽ ድሎች ለታላቅ ስኬት መሰረት ናቸው።", enText: "Small victories are the foundation for great success.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 274, category: "motivation", amText: "አዲስ ቀን አዲስ የድል ዕድል ነው።", enText: "A new day is a new opportunity for victory.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 275, category: "motivation", amText: "ድካም ጊዜያዊ ነው፣ ስኬት ግን የዘላለም ነው።", enText: "Fatigue is temporary, but success is eternal.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 276, category: "motivation", amText: "እምነት ተራሮችን ያንቀሳቅሳል።", enText: "Faith moves mountains.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 277, category: "motivation", amText: "ትኩረትህን በግቦችህ ላይ አድርግ።", enText: "Keep your focus on your goals.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 278, category: "motivation", amText: "ህይወት ተግዳሮቶችን ስትሰጥህ ጠንካራ ሁን።", enText: "When life gives you challenges, be strong.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 279, category: "motivation", amText: "ድል የሚገባው ለሚተጋ ነው።", enText: "Victory belongs to the diligent.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 280, category: "motivation", amText: "አስተሳሰብህ የወደፊት ዕጣህን ይወስናል።", enText: "Your mindset determines your future destiny.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 281, category: "motivation", amText: "ፈገግታ የውብ ቀን መጀመሪያ ነው።", enText: "A smile is the beginning of a beautiful day.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 282, category: "motivation", amText: "ትልቅ ግብ ይኑርህ፣ ለትንሽ ነገር አትረካ።", enText: "Have a big goal, don't settle for small things.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 283, category: "motivation", amText: "ጽናት የድል ማኅተም ነው።", enText: "Perseverance is the seal of victory.", amAuthor: "ታሪክ", enAuthor: "History" },
+    { id: 284, category: "motivation", amText: "አሸናፊዎች ፈጽሞ ተስፋ አይቆርጡም።", enText: "Winners never give up.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 285, category: "motivation", amText: "ዛሬ የምታደርገው ጥረት የነገ ደስታህ ነው።", enText: "The effort you make today is your joy tomorrow.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 286, category: "motivation", amText: "የውስጥ ኃይልህ ከማንኛውም ውጫዊ ፈተና ይበልጣል።", enText: "Your inner power is greater than any external challenge.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 287, category: "motivation", amText: "ለስኬት የሚደረግ ጉዞ አስደሳች ነው።", enText: "The journey to success is exciting.", amAuthor: "ህይወት", enAuthor: "Life" },
+    { id: 288, category: "motivation", amText: "አዲስ ፈተና አዲስ ጥንካሬ ይሰጠናል።", enText: "A new challenge gives us new strength.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
+    { id: 289, category: "motivation", amText: "አንተ ልዩ ነህ፤ መድረስ የምትፈልግበትን መድረስ ትችላለህ።", enText: "You are unique; you can reach where you want to go.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 290, category: "motivation", amText: "ብሩህ ተስፋ የህይወት ሞተር ነው።", enText: "Optimism is the engine of life.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 291, category: "motivation", amText: "ድል የሚጀምረው ከራስህ አእምሮ ነው።", enText: "Victory begins in your own mind.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 292, category: "motivation", amText: "ትዕግስት የድል አክሊል ባለቤት ያደርጋል።", enText: "Patience crowns you with victory.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
+    { id: 293, category: "motivation", amText: "እያንዳንዱ ውድቀት አዲስ ትምህርት ነው።", enText: "Every failure is a new lesson.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 294, category: "motivation", amText: "ህልምህን እውን ለማድረግ ዛሬውኑ ጀምር።", enText: "Start today to make your dream come true.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 295, category: "motivation", amText: "ጠንካራ መንፈስ ያላቸው ሰዎች ፈጽሞ አይሰበሩም።", enText: "People with strong spirits never break.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
+    { id: 296, category: "motivation", amText: "ስኬት የትጋት ውጤት ነው።", enText: "Success is the result of diligence.", amAuthor: "ስኬት", enAuthor: "Success" },
+    { id: 297, category: "motivation", amText: "የህይወት ውበት በድፍረት መኖር ላይ ነው።", enText: "The beauty of life lies in living with courage.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
+    { id: 298, category: "motivation", amText: "አንተ የህይወትህ አዛዥ ነህ።", enText: "You are the commander of your life.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" },
+    { id: 299, category: "motivation", amText: "ታላቅነት የሚጀምረው ከትናንሽ እርምጃዎች ነው።", enText: "Greatness begins with small steps.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
+    { id: 300, category: "motivation", amText: "የነገው ስኬታማ ሰው አንተ ራቅህ።", enText: "You are tomorrow's successful person.", amAuthor: "ስኬት", enAuthor: "Success" }
+];
+
+app.get('/api/quotes', (req, res) => {
+    res.json({
+        success: true,
+        count: quotesData.length,
+        data: quotesData
     });
-}
-
-function updateUI() {
-    const filteredQuotes = allQuotes.filter(q => q.category === currentCat);
-    if (filteredQuotes.length === 0) return;
-
-    if (currentIndex >= filteredQuotes.length) {
-        currentIndex = 0;
-    }
-
-    const current = filteredQuotes[currentIndex];
-
-    if (currentLang === 'am') {
-        subtitleEl.textContent = "ለዕለታዊ ስሜታዊ ጉዞዎ የሚሆን የጥቅስ መተግበሪያ።";
-        quoteTextEl.textContent = current.amText;
-        authorEl.textContent = "- " + current.amAuthor;
-        prevBtn.textContent = "ያለፈው";
-        nextBtn.textContent = "ቀጣይ";
-        langBtn.textContent = "🇺🇸 English";
-    } else {
-        subtitleEl.textContent = "A mood journal app for daily emotional journey.";
-        quoteTextEl.textContent = current.enText;
-        authorEl.textContent = "- " + current.enAuthor;
-        prevBtn.textContent = "Previous";
-        nextBtn.textContent = "Next";
-        langBtn.textContent = "🇪🇹 አማርኛ";
-    }
-}
-
-langBtn.addEventListener("click", () => {
-    currentLang = currentLang === 'am' ? 'en' : 'am';
-    renderCategories();
-    updateUI();
 });
 
-nextBtn.addEventListener("click", () => {
-    const filteredQuotes = allQuotes.filter(q => q.category === currentCat);
-    currentIndex = (currentIndex + 1) % filteredQuotes.length;
-    updateUI();
+app.get('/', (req, res) => {
+    res.json({
+        success: true,
+        message: "Tigist 300+ Categorized Quotes API Server is running successfully"
+    });
 });
 
-prevBtn.addEventListener("click", () => {
-    const filteredQuotes = allQuotes.filter(q => q.category === currentCat);
-    currentIndex = (currentIndex - 1 + filteredQuotes.length) % filteredQuotes.length;
-    updateUI();
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
-
-loadQuotesFromBackend();
