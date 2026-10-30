@@ -1,4 +1,3 @@
-// የ Render Backend API ሊንክሽ
 const API_URL = "https://tigist-quotes-app.onrender.com/api/quotes";
 
 let quotes = [];
@@ -10,7 +9,6 @@ const authorEl = document.getElementById("author");
 const nextBtn = document.getElementById("next-btn");
 const prevBtn = document.getElementById("prev-btn");
 
-// ጥቅሶቹን ከሰርቨር ማምጣት
 async function loadQuotes() {
     try {
         const response = await fetch(API_URL);
@@ -26,7 +24,6 @@ async function loadQuotes() {
     }
 }
 
-// ጥቅሱን በስክሪኑ ላይ ማሳያ
 function showQuote(index) {
     if (quotes.length === 0) return;
     
@@ -36,23 +33,20 @@ function showQuote(index) {
     authorEl.textContent = "- " + current.author;
 }
 
-// የ "ቀጣይ" (Next) ቁልፍ ሲጫን
 nextBtn.addEventListener("click", () => {
     currentIndex++;
     if (currentIndex >= quotes.length) {
-        currentIndex = 0; // ወደ መጀመሪያው ይመለሳል
+        currentIndex = 0;
     }
     showQuote(currentIndex);
 });
 
-// የ "ያለፈው" (Previous) ቁልፍ ሲጫን
 prevBtn.addEventListener("click", () => {
     currentIndex--;
     if (currentIndex < 0) {
-        currentIndex = quotes.length - 1; // ወደ መጨረሻው ይሄዳል
+        currentIndex = quotes.length - 1;
     }
     showQuote(currentIndex);
 });
 
-// መተግበሪያው ሲከፈት
 loadQuotes();
