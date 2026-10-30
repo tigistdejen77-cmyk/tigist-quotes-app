@@ -1,7 +1,7 @@
 const API_URL = "https://tigist-quotes-app.onrender.com/api/quotes";
 
 let allQuotes = [];
-let currentLang = 'am'; // 'am' ወይም 'en'
+let currentLang = 'am'; // ነባሪ ቋንቋ አማርኛ
 let currentCat = 'love';
 let currentIndex = 0;
 
@@ -57,7 +57,6 @@ function renderCategories() {
 }
 
 function updateUI() {
-    // የተመረጠው ምድብ ጥቅሶች ብቻ ማጣራት
     const filteredQuotes = allQuotes.filter(q => q.category === currentCat);
     if (filteredQuotes.length === 0) return;
 
