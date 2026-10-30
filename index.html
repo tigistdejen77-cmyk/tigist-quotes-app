@@ -8,14 +8,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>Lightly</h1>
-        <p class="subtitle">A mood journal app for daily emotional journey.</p>
+        <!-- የቋንቋ መቀየሪያ ቁልፍ (Language Toggle Button) -->
+        <div class="top-bar">
+            <button id="lang-toggle-btn" class="lang-btn">🇺🇸 English</button>
+        </div>
+
+        <h1 id="app-title">Lightly</h1>
+        <p id="app-subtitle" class="subtitle">A mood journal app for daily emotional journey.</p>
 
         <div class="quote-box">
-            <!-- አማርኛ ከላይ -->
-            <p id="am-text" class="am-quote">እየጫነ ነው...</p>
-            <!-- እንግሊዝኛ ከታች -->
-            <p id="en-text" class="en-quote">Loading...</p>
+            <!-- ጽሁፉ ከላይ እና ከታች ሳይደባለቅ በአንድ ንጹህ ቦታ ይወጣል -->
+            <p id="quote-text" class="quote-content">እየጫነ ነው...</p>
             <span id="author" class="author-name"></span>
         </div>
 

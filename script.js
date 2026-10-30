@@ -2,12 +2,15 @@ const API_URL = "https://tigist-quotes-app.onrender.com/api/quotes";
 
 let quotes = [];
 let currentIndex = 0;
+let currentLang = 'am'; // ነባሪ ቋንቋ አማርኛ (am = Amharic, en = English)
 
-const amTextEl = document.getElementById("am-text");
-const enTextEl = document.getElementById("en-text");
+const quoteTextEl = document.getElementById("quote-text");
 const authorEl = document.getElementById("author");
 const nextBtn = document.getElementById("next-btn");
 const prevBtn = document.getElementById("prev-btn");
+const langToggleBtn = document.getElementById("lang-toggle-btn");
+const appTitleEl = document.getElementById("app-title");
+const appSubtitleEl = document.getElementById("app-subtitle");
 
 async function loadQuotes() {
     try {
@@ -20,8 +23,7 @@ async function loadQuotes() {
         }
     } catch (error) {
         console.error("Error loading quotes:", error);
-        amTextEl.textContent = "መረጃውን ማምጣት አልተቻለም።";
-        enTextEl.textContent = "Failed to load data.";
+        quoteTextEl.textContent = "መረጃውን ማምጣት አልተቻለም።";
     }
 }
 
@@ -30,11 +32,31 @@ function showQuote(index) {
     
     const current = quotes[index];
     
-    // አማርኛ ከላይ፣ እንግሊዝኛ ከታች በትክክል እንዲቀመጥ ተደርጓል
-    amTextEl.textContent = current.amText;
-    enTextEl.textContent = current.enText;
+    // እንደ ተመረጠው ቋንቋ አማርኛ ወይም እንግሊዝኛ ያሳያል (ምንም መብረቅ/flicker የለም)
+    if (currentLang === 'am') {
+        quoteTextEl.textContent = current.amText;
+        appTitleEl.textContent = "Lightly";
+        appSubtitleEl.textContent = "A mood journal app for daily emotional journey.";
+        nextBtn.textContent = "ቀጣይ (Next)";
+        prevBtn.textContent = "ያለፈው (Previous)";
+        langToggleBtn.textContent = "🇺🇸 English";
+    } else {
+        quoteTextEl.textContent = current.enText;
+        appTitleEl.textContent = "Lightly";
+        appSubtitleEl.textContent = "A mood journal app for daily emotional journey.";
+        nextBtn.textContent = "Next";
+        prevBtn.textContent = "Previous";
+        langToggleBtn.textContent = "🇪🇹 አማርኛ";
+    }
+    
     authorEl.textContent = "- " + current.author;
 }
+
+// ቋንቋ መቀየሪያ ቁልፍ ሲጫን
+langToggleBtn.addEventListener("click", () => {
+    currentLang = currentLang === 'am' ? 'en' : 'am';
+    showQuote(currentIndex);
+});
 
 nextBtn.addEventListener("click", () => {
     currentIndex++;
