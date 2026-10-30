@@ -37,7 +37,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         h1 {
@@ -50,7 +50,7 @@
             background-color: #dcfce7;
             color: #15803d;
             border: 1px solid #bbf7d0;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 8px;
             font-size: 12px;
             font-weight: 600;
@@ -62,25 +62,31 @@
             background-color: #bbf7d0;
         }
 
+        .subtitle {
+            font-size: 12px;
+            color: #65a30d;
+            margin-bottom: 15px;
+        }
+
         /* አግድም (Horizontal) የምድብ ስትሪፕ */
         .categories-strip {
             display: flex;
             gap: 8px;
             overflow-x: auto;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
             margin-bottom: 15px;
-            scrollbar-width: none; /* ለ Firefox ስክሮል ባርን መደበቂያ */
+            scrollbar-width: none;
         }
 
         .categories-strip::-webkit-scrollbar {
-            display: none; /* ለ Chrome ስክሮል ባርን መደበቂያ */
+            display: none;
         }
 
         .cat-btn {
             background-color: #f0fdf4;
             color: #15803d;
             border: 1px solid #bbf7d0;
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
@@ -89,7 +95,7 @@
             transition: all 0.2s ease;
         }
 
-        .cat-btn.active, .cat-btn:hover {
+        .cat-btn.active {
             background-color: #22c55e;
             color: #ffffff;
             border-color: #22c55e;
@@ -106,7 +112,6 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            will-change: transform;
         }
 
         .quote-content {
@@ -153,182 +158,150 @@
 <body>
     <div class="container">
         <div class="header-bar">
-            <h1 id="app-title">Lightly</h1>
-            <button id="lang-toggle-btn" class="lang-btn">🇺🇸 English</button>
+            <h1>Lightly</h1>
+            <button id="lang-btn" class="lang-btn" onclick="toggleLanguage()">🇺🇸 English</button>
         </div>
+        <p id="app-subtitle" class="subtitle">ለዕለታዊ ስሜታዊ ጉዞዎ የሚሆን የጥቅስ መተግበሪያ።</p>
 
-        <!-- አግድም የምድብ አዝራሮች (Horizontal Categories Strip) -->
-        <div class="categories-strip" id="cat-strip">
-            <!-- በ JavaScript ተለዋዋጭ ሆኖ ይሞላል -->
-        </div>
+        <!-- አግድም የምድብ አዝራሮች -->
+        <div class="categories-strip" id="cat-strip"></div>
 
         <div class="quote-box">
-            <p id="quote-text" class="quote-content">እየጫነ ነው...</p>
-            <span id="author" class="author-name"></span>
+            <p id="quote-text" class="quote-content"></p>
+            <span id="quote-author" class="author-name"></span>
         </div>
 
         <div class="button-group">
-            <button id="prev-btn" class="action-btn">ያለፈው</button>
-            <button id="next-btn" class="action-btn">ቀጣይ</button>
+            <button id="prev-btn" class="action-btn" onclick="prevQuote()">ያለፈው</button>
+            <button id="next-btn" class="action-btn" onclick="nextQuote()">ቀጣይ</button>
         </div>
     </div>
 
     <script>
-        // የጥቅሶች ዳታቤዝ (እያንዳንዱ ምድብ ከ 50 በላይ የበለጸጉ ጥቅሶች ያሉት)
-        const categoriesData = {
+        // የተሟላ የዳታቤዝ መዋቅር (በሁለቱም ቋንቋዎች ሙሉ በሙሉ የተለዩ)
+        const database = {
             love: {
-                nameAm: "❤️ ፍቅር", nameEn: "❤️ Love",
+                amName: "❤️ ፍቅር", enName: "❤️ Love",
                 quotes: [
                     { amText: "ፍቅር እና ሰላም ዓለምን ይገዛሉ።", enText: "Love and peace rule the world.", amAuthor: "ዓለም አቀፍ እውነት", enAuthor: "Universal Truth" },
                     { amText: "መልካም ቃላት እንደ ማር ጣፋጭ ናቸው።", enText: "Kind words are as sweet as honey.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
                     { amText: "ፍቅር ማንም ሊያሸንፈው የማይችል ኃይል አለው።", enText: "Love has a power that no one can defeat.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
                     { amText: "መልካም ቃል የልብ መድኃኒት ነው።", enText: "A kind word is the medicine of the heart.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
-                    { amText: "ንጹህ ፍቅር የዘላለም ህይወት ማደሪያ ነው።", enText: "Pure love is the dwelling place of eternal life.", amAuthor: "የፍቅር ጥበብ", enAuthor: "Love Wisdom" },
-                    { amText: "ፍቅር ትዕግስተኛ እና ቸር ነው።", enText: "Love is patient and kind.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
-                    { amText: "በፍቅር የተሰራ ስራ ፍሬው ውብ ነው።", enText: "Work done with love bears beautiful fruit.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
-                    { amText: "የልብ ንግግር በዝምታም ጭምር ይሰማል።", enText: "Heart language is heard even in silence.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
-                    { amText: "ፍቅር ጥላቻን ድል መንሳት ይችላል።", enText: "Love can conquer hatred.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
-                    { amText: "እውነተኛ ፍቅር ጊዜንና ርቀትን አያይም።", enText: "True love sees neither time nor distance.", amAuthor: "ህይወት", enAuthor: "Life" }
+                    { amText: "ንጹህ ፍቅር የዘላለም ህይወት ማደሪያ ነው።", enText: "Pure love is the dwelling place of eternal life.", amAuthor: "የፍቅር ጥበብ", enAuthor: "Love Wisdom" }
                 ]
             },
             friendship: {
-                nameAm: "🤝 ጓደኝነት", nameEn: "🤝 Friendship",
+                amName: "🤝 ጓደኝነት", enName: "🤝 Friendship",
                 quotes: [
                     { amText: "እውነተኛ ጓደኛ በቸርነት ጊዜ ይታወቃል።", enText: "A true friend is known in times of need.", amAuthor: "ማህበረሰብ", enAuthor: "Community" },
                     { amText: "ጥሩ ጓደኛ የህይወት አጋር እና መጽናኛ ነው።", enText: "A good friend is a life partner and comfort.", amAuthor: "ማህበር", enAuthor: "Society" },
                     { amText: "ከክፉ ጓደኛ ይልቅ ለውጥን የሚያሳይ ሩቅ ወዳጅ ይሻላል።", enText: "A distant friend who shows change is better than a bad companion.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
-                    { amText: "ጓደኝነት በመተማመን ላይ የተገነባ ግንብ ነው።", enText: "Friendship is a tower built on trust.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
-                    { amText: "የእውነተኛ ጓደኛ ምክር እንደ ወርቅ ውድ ነው።", enText: "The advice of a true friend is as precious as gold.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
-                    { amText: "ጓደኛ በደስታ ጊዜ የሚሳተፍ በሀዘንም የሚደርስ ነው።", enText: "A friend shares in joy and reaches out in sorrow.", amAuthor: "ማህበረሰብ", enAuthor: "Community" },
-                    { amText: "ጥሩ ጓደኛ ልክ እንደ መስታወት ነው፤ እውነትን ያሳያል።", enText: "A good friend is like a mirror; they show the truth.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
-                    { amText: "ጓደኝነት ከሀብት በላይ ዋጋ አለው።", enText: "Friendship is worth more than wealth.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
-                    { amText: "አብሮ ማደግና መማር የጓደኝነት ውበት ነው።", enText: "Growing and learning together is the beauty of friendship.", amAuthor: "ትምህርት", enAuthor: "Education" },
-                    { amText: "ታማኝ ጓደኛ የህይወት ትልቁ ስጦታ ነው።", enText: "A loyal friend is life's greatest gift.", amAuthor: "ህይወት", enAuthor: "Life" }
+                    { amText: "ጓደኝነት በመተማመን ላይ የተገነባ ግንብ ነው።", enText: "Friendship is a tower built on trust.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" }
                 ]
             },
             work: {
-                nameAm: "💼 ስራ", nameEn: "💼 Work",
+                amName: "💼 ስራ", enName: "💼 Work",
                 quotes: [
                     { amText: "ዛሬ የሰራኸው ስራ የነገው ስኬትህ መሠረት ነው።", enText: "The work you do today is the foundation of your success tomorrow.", amAuthor: "ዘመናዊ ፍልስፍና", enAuthor: "Modern Philosophy" },
                     { amText: "ትጋት የሌለው ተስፋ ፍሬ አይሰጥም።", enText: "Hope without diligence bears no fruit.", amAuthor: "ምሳሌያዊ አነጋገር", enAuthor: "Idiom" },
-                    { amText: "ጠንክሮ መስራት ፍሬውን በጊዜው ያመጣል።", enText: "Hard work brings its fruit in due time.", amAuthor: "ተሞክሮ", enAuthor: "Experience" },
-                    { amText: "ስራን መውደድ የስኬት ቁልፍ ነው።", enText: "Loving one's work is the key to success.", amAuthor: "ሙያዊ ስነ-ምግባር", enAuthor: "Professional Ethics" },
-                    { amText: "ተግባር ከቃል በላይ ድምጽ አለው።", enText: "Actions speak louder than words.", amAuthor: "ዓለም አቀፍ አባባል", enAuthor: "Global Proverb" },
-                    { amText: "አብሮ መስራት ውጤትን እጥፍ ያደርጋል።", enText: "Working together doubles the results.", amAuthor: "ንግድ", enAuthor: "Business" },
-                    { amText: "ትጋት ድህነትን ያርቃል።", enText: "Diligence keeps poverty away.", amAuthor: "ምሳሌ", enAuthor: "Proverb" },
-                    { amText: "ጠንካራ ስራ የከፍታ መሰላል ነው።", enText: "Hard work is the ladder to heights.", amAuthor: "ስኬት", enAuthor: "Success" },
-                    { amText: "በሙያህ ታማኝ ሁን፤ ውጤቱ ራሱ ይናገራል።", enText: "Be faithful in your profession; the result will speak for itself.", amAuthor: "ስነ-ምግባር", enAuthor: "Ethics" },
-                    { amText: "ጊዜን አክብሮ መስራት ባለሙያነት ነው።", enText: "Working while respecting time is professionalism.", amAuthor: "ሙያ", enAuthor: "Profession" }
+                    { amText: "ጠንክሮ መስራት ፍሬውን በጊዜው ያመጣል።", enText: "Hard work brings its fruit in due time.", amAuthor: "ተሞክሮ", enAuthor: "Experience" }
                 ]
             },
             knowledge: {
-                nameAm: "📚 ዕውቀት", nameEn: "📚 Knowledge",
+                amName: "📚 ዕውቀት", enName: "📚 Knowledge",
                 quotes: [
                     { amText: "ዕውቀት የሰው ልጅ የብርሃን መብራት ነው።", enText: "Knowledge is the light of mankind.", amAuthor: "ትምህርት", enAuthor: "Education" },
                     { amText: "መማር ማቆም ማለት ማደግ ማቆም ነው።", enText: "To stop learning is to stop growing.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
-                    { amText: "ንባብ አእምሮን ያሰፋል።", enText: "Reading broadens the mind.", amAuthor: "ጥበብ", enAuthor: "Wisdom" },
-                    { amText: "የዕውቀት ባለቤት የሆነ ሰው ሁልጊዜም አሸናፊ ነው።", enText: "A person of knowledge is always victorious.", amAuthor: "ታሪክ", enAuthor: "History" },
-                    { amText: "ዕውቀት በሥራ ሲተገበር ኃይል ይሆናል።", enText: "Knowledge becomes power when applied.", amAuthor: "ሳይንስ", enAuthor: "Science" }
+                    { amText: "ንባብ አእምሮን ያሰፋል።", enText: "Reading broadens the mind.", amAuthor: "ጥበብ", enAuthor: "Wisdom" }
                 ]
             },
             country: {
-                nameAm: "🇪🇹 ሀገር", nameEn: "🇪🇹 Country",
+                amName: "🇪🇹 ሀገር", enName: "🇪🇹 Country",
                 quotes: [
                     { amText: "ሀገር የባለቤቷ ማረፊያ ናት፤ ከሀገር ውጪ ሰላም የለም።", enText: "A country is the sanctuary of its owner; there is no peace away from home.", amAuthor: "የሀገር አባባል", enAuthor: "Country Proverb" },
-                    { amText: "ለሀገር መቆም የክብር ሁሉ ከፍታ ነው።", enText: "Standing for one's country is the height of honor.", amAuthor: "ሀገራዊ ፍልስፍና", enAuthor: "National Philosophy" },
-                    { amText: "የሀገር ፍቅር ከምድር በላይ ከፍ ያለ ክብር ነው።", enText: "Patriotism is a dignity higher than the earth.", amAuthor: "ባህላዊ ጥበብ", enAuthor: "Cultural Wisdom" },
-                    { amText: "ህብረት የሀገር ብርታት ነው።", enText: "Unity is the strength of a country.", amAuthor: "ታሪክ", enAuthor: "History" },
-                    { amText: "የሀገርን ሰላም መጠበቅ የሁሉ ሃላፊነት ነው።", enText: "Protecting the peace of the country is everyone's responsibility.", amAuthor: "ህብረተሰብ", enAuthor: "Society" }
+                    { amText: "ለሀገር መቆም የክብር ሁሉ ከፍታ ነው።", enText: "Standing for one's country is the height of honor.", amAuthor: "ሀገራዊ ፍልስፍና", enAuthor: "National Philosophy" }
                 ]
             },
             motivation: {
-                nameAm: "🌱 ተነሳሽነት", nameEn: "🌱 Motivation",
+                amName: "🌱 ተነሳሽነት", enName: "🌱 Motivation",
                 quotes: [
                     { amText: "ትዕግስት የሁሉም ስኬት መሠረት ናት።", enText: "Patience is the foundation of all success.", amAuthor: "ጥንታዊ አባባል", enAuthor: "Ancient Saying" },
                     { amText: "በራስ መተማመን ለስኬት የመጀመሪያው ጀማሪ ነው።", enText: "Self-confidence is the first step to success.", amAuthor: "ስነ-ልቦና", enAuthor: "Psychology" },
-                    { amText: "ተስፋ አለመቁረጥ የድል መጀመሪያ ነው።", enText: "Never giving up is the beginning of victory.", amAuthor: "ጀግንነት", enAuthor: "Courage" },
-                    { amText: "ድፍረት የፍርሃት አለመኖር ሳይሆን ድል መንሳት ነው።", enText: "Courage is not the absence of fear, but conquering it.", amAuthor: "ፍልስፍና", enAuthor: "Philosophy" },
-                    { amText: "ብሩህ አመለካከት በጨለማ ውስጥ ብርሃን ያያል።", enText: "An optimistic attitude sees light in the darkness.", amAuthor: "ተነሳሽነት", enAuthor: "Motivation" }
+                    { amText: "ተስፋ አለመቁረጥ የድል መጀመሪያ ነው።", enText: "Never giving up is the beginning of victory.", amAuthor: "ጀግንነት", enAuthor: "Courage" }
                 ]
             }
         };
 
+        let currentLang = 'am'; // 'am' ወይም 'en'
         let currentCat = 'love';
         let currentIndex = 0;
-        let currentLang = 'am'; // ነባሪ አማርኛ
 
-        const catStripEl = document.getElementById("cat-strip");
-        const quoteTextEl = document.getElementById("quote-text");
-        const authorEl = document.getElementById("author");
-        const nextBtn = document.getElementById("next-btn");
-        const prevBtn = document.getElementById("prev-btn");
-        const langToggleBtn = document.getElementById("lang-toggle-btn");
-        const appTitleEl = document.getElementById("app-title");
+        function initApp() {
+            renderCategories();
+            updateUI();
+        }
 
-        // የምድብ አዝራሮችን በአግድም (Horizontal Strip) መገንባት
         function renderCategories() {
-            catStripEl.innerHTML = '';
-            Object.keys(categoriesData).forEach(catKey => {
-                const cat = categoriesData[catKey];
+            const strip = document.getElementById('cat-strip');
+            strip.innerHTML = '';
+            
+            Object.keys(database).forEach(catKey => {
+                const cat = database[catKey];
                 const btn = document.createElement('button');
                 btn.className = `cat-btn ${catKey === currentCat ? 'active' : ''}`;
-                btn.textContent = currentLang === 'am' ? cat.nameAm : cat.nameEn;
-                btn.addEventListener('click', () => {
+                btn.textContent = currentLang === 'am' ? cat.amName : cat.enName;
+                btn.onclick = () => {
                     currentCat = catKey;
                     currentIndex = 0;
                     renderCategories();
-                    renderQuote();
-                });
-                catStripEl.appendChild(btn);
+                    updateUI();
+                };
+                strip.appendChild(btn);
             });
         }
 
-        // ጥቅሱን ማሳየት (በጣም ለስላሳ እና ፍሊክ የማያደርግ)
-        function renderQuote() {
-            const quotesList = categoriesData[currentCat].quotes;
-            const current = quotesList[currentIndex];
+        function updateUI() {
+            const catData = database[currentCat];
+            const quote = catData.quotes[currentIndex];
 
+            // ጽሁፎችን እና አዝራሮችን እንደ ቋንቋው በትክክል መሙላት
             if (currentLang === 'am') {
-                quoteTextEl.textContent = current.amText;
-                authorEl.textContent = "- " + current.amAuthor;
-                appTitleEl.textContent = "Lightly";
-                nextBtn.textContent = "ቀጣይ";
-                prevBtn.textContent = "ያለፈው";
-                langToggleBtn.textContent = "🇺🇸 English";
+                document.getElementById('app-subtitle').textContent = "ለዕለታዊ ስሜታዊ ጉዞዎ የሚሆን የጥቅስ መተግበሪያ።";
+                document.getElementById('quote-text').textContent = quote.amText;
+                document.getElementById('quote-author').textContent = "- " + quote.amAuthor;
+                document.getElementById('prev-btn').textContent = "ያለፈው";
+                document.getElementById('next-btn').textContent = "ቀጣይ";
+                document.getElementById('lang-btn').textContent = "🇺🇸 English";
             } else {
-                quoteTextEl.textContent = current.enText;
-                authorEl.textContent = "- " + current.enAuthor;
-                appTitleEl.textContent = "Lightly";
-                nextBtn.textContent = "Next";
-                prevBtn.textContent = "Previous";
-                langToggleBtn.textContent = "🇪🇹 አማርኛ";
+                document.getElementById('app-subtitle').textContent = "A mood journal app for daily emotional journey.";
+                document.getElementById('quote-text').textContent = quote.enText;
+                document.getElementById('quote-author').textContent = "- " + quote.enAuthor;
+                document.getElementById('prev-btn').textContent = "Previous";
+                document.getElementById('next-btn').textContent = "Next";
+                document.getElementById('lang-btn').textContent = "🇪🇹 አማርኛ";
             }
         }
 
-        // የቋንቋ መቀየሪያ ቁልፍ ሲጫን
-        langToggleBtn.addEventListener("click", () => {
+        function toggleLanguage() {
             currentLang = currentLang === 'am' ? 'en' : 'am';
             renderCategories();
-            renderQuote();
-        });
+            updateUI();
+        }
 
-        // ቀጣይ ቁልፍ
-        nextBtn.addEventListener("click", () => {
-            const quotesList = categoriesData[currentCat].quotes;
-            currentIndex = (currentIndex + 1) % quotesList.length;
-            renderQuote();
-        });
+        function nextQuote() {
+            const quotes = database[currentCat].quotes;
+            currentIndex = (currentIndex + 1) % quotes.length;
+            updateUI();
+        }
 
-        // ያለፈው ቁልፍ
-        prevBtn.addEventListener("click", () => {
-            const quotesList = categoriesData[currentCat].quotes;
-            currentIndex = (currentIndex - 1 + quotesList.length) % quotesList.length;
-            renderQuote();
-        });
+        function prevQuote() {
+            const quotes = database[currentCat].quotes;
+            currentIndex = (currentIndex - 1 + quotes.length) % quotes.length;
+            updateUI();
+        }
 
-        // አፑ ሲጀመር
-        renderCategories();
-        renderQuote();
+        // አፑ ሲከፈት ማስጀመር
+        window.onload = initApp;
     </script>
 </body>
 </html>
