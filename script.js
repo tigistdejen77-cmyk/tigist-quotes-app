@@ -2,7 +2,7 @@ const API_URL = "https://tigist-quotes-app.onrender.com/api/quotes";
 
 let quotes = [];
 let currentIndex = 0;
-let currentLang = 'am'; // ነባሪ ቋንቋ አማርኛ (am = Amharic, en = English)
+let currentLang = 'am'; // ነባሪ ቋንቋው አሁን አማርኛ (am) ሆኗል!
 
 const quoteTextEl = document.getElementById("quote-text");
 const authorEl = document.getElementById("author");
@@ -32,13 +32,13 @@ function showQuote(index) {
     
     const current = quotes[index];
     
-    // እንደ ተመረጠው ቋንቋ አማርኛ ወይም እንግሊዝኛ ያሳያል (ምንም መብረቅ/flicker የለም)
+    // በነባሪ ሙሉ በሙሉ በአማርኛ ይወጣል
     if (currentLang === 'am') {
         quoteTextEl.textContent = current.amText;
         appTitleEl.textContent = "Lightly";
-        appSubtitleEl.textContent = "A mood journal app for daily emotional journey.";
-        nextBtn.textContent = "ቀጣይ (Next)";
-        prevBtn.textContent = "ያለፈው (Previous)";
+        appSubtitleEl.textContent = "ለዕለታዊ ስሜታዊ ጉዞዎ የሚሆን የጥቅስ መተግበሪያ።";
+        nextBtn.textContent = "ቀጣይ";
+        prevBtn.textContent = "ያለፈው";
         langToggleBtn.textContent = "🇺🇸 English";
     } else {
         quoteTextEl.textContent = current.enText;
@@ -52,7 +52,7 @@ function showQuote(index) {
     authorEl.textContent = "- " + current.author;
 }
 
-// ቋንቋ መቀየሪያ ቁልፍ ሲጫን
+// የቋንቋ መቀየሪያ ቁልፍ ሲጫን
 langToggleBtn.addEventListener("click", () => {
     currentLang = currentLang === 'am' ? 'en' : 'am';
     showQuote(currentIndex);
